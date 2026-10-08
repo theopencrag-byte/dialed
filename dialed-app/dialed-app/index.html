@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dialed</title>
+<meta name="theme-color" content="#2e3440">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dialed">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: brand header, inputs in collapsible sections on the left, solution card and drop table on the right (stacked on phones). */
+:root{--bg:#e5e9f0;--panel:#eceff4;--ink:#2e3440;--mute:#4c566a;--line:#d0d7e3;--accent:#496b93;--accent-ink:#eceff4;--soft:#d8dee9;--hot:#a3404b;--hero-bg:#2e3440;--hero-fg:#eceff4;--hero-mute:#aab4c6;--hero-num:#ebcb8b;--display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;--body:"Barlow","Segoe UI",system-ui,sans-serif;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2e3440;--panel:#3b4252;--ink:#eceff4;--mute:#aab4c6;--line:#4c566a;--accent:#88c0d0;--accent-ink:#2e3440;--soft:#434c5e;--hot:#ebcb8b;--hero-bg:#434c5e;--hero-fg:#eceff4;--hero-mute:#c2cbdb;--hero-num:#ebcb8b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#2e3440;--panel:#3b4252;--ink:#eceff4;--mute:#aab4c6;--line:#4c566a;--accent:#88c0d0;--accent-ink:#2e3440;--soft:#434c5e;--hot:#ebcb8b;--hero-bg:#434c5e;--hero-fg:#eceff4;--hero-mute:#c2cbdb;--hero-num:#ebcb8b;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.mark{width:30px;height:30px;color:var(--accent);flex:none}
+.brand{font-family:var(--display);font-weight:700;font-size:1.85rem;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0}
+.iconbtn{margin-left:auto;width:40px;height:40px;padding:0;display:grid;place-items:center;color:var(--ink);border-color:var(--line);flex:none}
+.iconbtn svg{width:20px;height:20px}
+.tag{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border-left:1px solid var(--line);padding-left:12px;line-height:1.2}
+main{max-width:1240px;margin:0 auto;padding:18px 16px 40px}
+.layout{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1080px){.layout{grid-template-columns:minmax(360px,440px) minmax(0,1fr);align-items:start}}
+.col-in,.col-out{display:flex;flex-direction:column;gap:12px;min-width:0}
+details.sec{border:1px solid var(--line);background:var(--panel);border-radius:10px}
+details.sec>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;font-family:var(--display);font-weight:700;font-size:1.2rem;letter-spacing:.06em;text-transform:uppercase}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin-right:4px;transition:transform .15s}
+details.sec[open]>summary::after{transform:rotate(-135deg)}
+details.sec[open]>summary{border-bottom:1px solid var(--line)}
+.sbody{padding:14px}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+label{display:flex;flex-direction:column;font-size:.8rem;color:var(--mute);gap:4px;min-width:0}
+input,select,textarea{font:inherit;font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-height:40px}
+input[type=checkbox]{min-height:0;width:auto}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-weight:600;font-size:.9rem;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:8px 14px;cursor:pointer}
+button:hover{background:var(--soft)}
+#go{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:10px 22px;font-size:1rem}
+#go:hover{filter:brightness(1.1)}
+.qs{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.qs label{flex:1 1 160px}
+.summary{display:flex;flex-wrap:wrap;gap:8px}
+.summary span{background:var(--soft);border-radius:999px;padding:4px 12px;font-size:.82rem;color:var(--mute)}
+.summary b{color:var(--ink);font-size:.95rem;font-variant-numeric:tabular-nums}
+.card{background:var(--hero-bg);color:var(--hero-fg);border-radius:12px;padding:16px 18px}
+.card>b{font-family:var(--display);font-size:1.15rem;letter-spacing:.1em;text-transform:uppercase;color:var(--hero-mute);font-weight:600}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:14px 20px}
+.big .n{font-family:var(--display);font-size:2.9rem;line-height:1;color:var(--hero-num);font-weight:700;font-variant-numeric:tabular-nums}
+.big .l{font-size:.78rem;color:var(--hero-mute);margin-top:2px}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--bg)}
+th{font-family:var(--display);font-weight:600;color:var(--mute);font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;background:var(--soft)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit}
+td:first-child{background:var(--panel)}
+tbody tr:nth-child(even) td:first-child{background:var(--bg)}
+tr.zero td{color:var(--accent);font-weight:600}
+td.dial{color:var(--hot);font-weight:600}
+.note{font-size:.8rem;color:var(--mute);margin:8px 0 0}
+.actions{margin:12px 0 0;display:flex;gap:8px;flex-wrap:wrap}
+.lookup{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.err{color:var(--hot);font-weight:600}
+footer{max-width:1240px;margin:0 auto;padding:0 16px 24px;font-size:.78rem;color:var(--mute)}
+@media (max-width:480px){.tag{display:none}.big .n{font-size:2.4rem}}
+@media (prefers-reduced-motion:reduce){details.sec>summary::after{transition:none}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+<svg class="mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="16" cy="16" r="9"/><path d="M16 2v8M16 22v8M2 16h8M22 16h8"/><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>
+<h1 class="brand">Dialed</h1><span class="tag">Ballistic<br>Calculator</span><button type="button" id="themebtn" class="iconbtn" aria-label="Switch theme"></button>
+</div></header>
+<main>
+<div class="layout"><div class="col-in">
+<details class="sec" open><summary>Bullet library</summary><div class="sbody">
+<div class="grid">
+<label>Caliber<select id="cal"></select></label>
+<label>Bullet<select id="bul"></select></label>
+<label>Bullet shape<select id="shape"><option value="bt">Boat tail, modern match (G7)</option><option value="fb">Flat base or round nose (G1)</option></select></label>
+</div>
+<p class="note" id="bulinfo">Pick a caliber and bullet to fill in weight, diameter, BC and drag model. You can still edit any value afterward.</p>
+</div></details>
+
+<details class="sec" open><summary>Rifle and load</summary><div class="sbody">
+<div class="grid">
+<label>Muzzle velocity (fps)<input id="mv" type="number" value="2750"></label>
+<label>Ballistic coefficient<input id="bc" type="number" step="0.001" value="0.264"></label>
+<label>Drag model<select id="model"><option value="G7">G7</option><option value="G1">G1</option></select></label>
+<label>Bullet weight (gr)<input id="wt" type="number" value="140"></label>
+<label>Sight height (in)<input id="sh" type="number" step="0.1" value="1.9"></label>
+<label>Zero distance (yd)<input id="zero" type="number" value="100"></label>
+<label>BC below threshold (optional)<input id="bclo" type="number" step="0.001" placeholder="blank = one BC"></label>
+<label>Threshold velocity (fps)<input id="bcthr" type="number" placeholder="e.g. 1600"></label>
+<label>Bullet diameter (in)<input id="dia" type="number" step="0.001" value="0.264"></label>
+<label>Barrel twist (in per turn, 0 = no spin drift)<input id="tw" type="number" step="0.1" value="8"></label>
+<label>Twist direction<select id="tdir"><option value="R">Right</option><option value="L">Left</option></select></label>
+<label>Bullet length (in, optional)<input id="len" type="number" step="0.001" placeholder="for stability"></label>
+<label>Scope click value<select id="ck"><option value="MIL:0.1">0.1 mil</option><option value="MIL:0.05">0.05 mil</option><option value="MOA:0.25">1/4 MOA</option><option value="MOA:0.125">1/8 MOA</option><option value="MOA:0.5">1/2 MOA</option></select></label>
+</div></div></details>
+
+<details class="sec"><summary>Saved loads</summary><div class="sbody">
+<div class="grid">
+<label>Load name<input id="lname" type="text" placeholder="e.g. 6.5 CM 140 ELD-M"></label>
+<label>Saved loads<select id="lsel"></select></label>
+</div>
+<p class="actions"><button type="button" id="lsave">Save load</button><button type="button" id="lload">Load</button><button type="button" id="ldel">Delete</button></p>
+<p class="note" id="linfo">Saves velocity, BC, drag model, weight, sight height, zero and bullet choice in this browser.</p>
+</div></details>
+
+<details class="sec" open><summary>Conditions</summary><div class="sbody">
+
+<div class="grid">
+<label>Temperature (°F)<input id="temp" type="number" value="59"></label>
+<label>Altitude (ft)<input id="alt" type="number" value="0"></label>
+<label>Wind 1 speed (mph, from the shooter)<input id="wind" type="number" value="10"></label>
+<label>Wind 1 from (o'clock)<select id="clock"></select></label>
+<label>Shooting direction (° from north)<input id="dir" type="number" value="0"></label>
+<label>Station pressure (inHg, blank = auto)<input id="pres" type="number" step="0.01" placeholder="auto"></label>
+<label>Longitude (° E positive)<input id="lon" type="number" step="0.01" placeholder="-103.23"></label>
+<label>Humidity (%)<input id="hum" type="number" value="50"></label>
+<label>Latitude (° N positive, blank = no Coriolis)<input id="lat" type="number" step="0.01" placeholder="44.08"></label>
+<label>Wind 2 speed (mph)<input id="wind2" type="number" placeholder="0"></label>
+<label>Wind 2 from (o'clock)<select id="clock2"></select></label>
+<label>Wind 2 starts at (yd)<input id="start2" type="number" value="400"></label>
+<label>Wind 3 speed (mph)<input id="wind3" type="number" placeholder="0"></label>
+<label>Wind 3 from (o'clock)<select id="clock3"></select></label>
+<label>Wind 3 starts at (yd)<input id="start3" type="number" value="800"></label>
+<label>Max distance (yd)<input id="maxr" type="number" value="1200"></label>
+<label>Step (yd)<input id="step" type="number" value="100"></label>
+</div>
+<div class="lookup"><b>Look up a starting point (optional)</b>
+<p class="note">Online weather is a model estimate for your area, not your firing line. A weather meter reading at the range is more accurate, so treat this as a rough start. Searching sends only the place name or the coordinates to Open-Meteo.</p>
+<div class="grid"><label>Place or postal code<input id="place" type="text" placeholder="e.g. Rapid City or 57701"></label><label>Results<select id="pres2"><option value="">Search first</option></select></label></div>
+<p class="actions"><button type="button" id="psearch">Search place</button><button type="button" id="wx">Use my GPS</button><button type="button" id="coordbtn">Get weather for typed coordinates</button></p>
+<p class="note" id="wxinfo">Fills elevation, temperature, pressure, humidity, latitude and wind. Wind is set from your shooting direction, so enter that first.</p></div></div></details>
+
+<details class="sec"><summary>True your BC from a real drop</summary><div class="sbody">
+<div class="grid">
+<label>Target distance (yd)<input id="td" type="number" value="800"></label>
+<label>Elevation you dialed<input id="tv" type="number" step="0.1" placeholder="e.g. 5.4"></label>
+<label>Unit<select id="tu"><option value="MIL">mil</option><option value="MOA">MOA</option></select></label>
+</div>
+<p class="actions"><button type="button" id="ttrue">Adjust BC to match</button></p>
+<p class="note" id="tinfo">Shoot at a known distance, note the elevation that centered your group, and enter it here. Use a distance where your bullet is still supersonic. Check your velocity with a chronograph first, since velocity error also shifts the result.</p>
+</div></details>
+
+<details class="sec" id="installbox"><summary>Install and share</summary><div class="sbody">
+<p class="note" style="margin-top:0">On iPhone, open this page in Safari, tap Share, then Add to Home Screen. On Android, open it in Chrome, tap the menu, then Install app. After the first visit it opens with no signal, and your saved loads stay on your own phone.</p>
+<p class="actions"><button type="button" id="installbtn" hidden>Install app</button><button type="button" id="sharebtn">Share with a friend</button></p>
+<p class="note" id="installinfo"></p>
+</div></details>
+</div><div class="col-out">
+<div class="qs"><label>Target distance for the solution card (yd)<input id="sd" type="number" value="600"></label><button id="go">Calculate</button></div>
+<div id="out"></div>
+<details class="sec"><summary>Drop table columns</summary><div class="sbody">
+<div id="colpick" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px"></div>
+<p class="actions"><button type="button" id="colall">Show all</button><button type="button" id="colmin">Essentials only</button></p>
+<p class="note">Choose which columns appear in the table. Your choice is remembered in this browser. Distance is always shown.</p>
+</div></details>
+</div></div>
+<p class="note">Bullet data comes from the open ammolytics/projectiles dataset (MIT License), compiled from manufacturer specs in 2018, so newer bullets and revised BCs may be missing. Defaults are a 6.5 Creedmoor 140 gr Hornady ELD Match load. Wind uses the crosswind component only, with no head/tail effect. Wind 2 and 3 replace the earlier wind from their start distance outward. Use chronograph data and confirm with real drops at distance before trusting any computed come-ups.</p>
+</main>
+<script>
+const G1=[0,.2629,.5,.2032,.7,.2165,.8,.2546,.85,.2901,.9,.3415,.95,.4084,1,.4805,1.05,.5427,1.1,.5883,1.2,.6393,1.3,.6589,1.4,.6625,1.5,.6573,1.6,.6474,1.8,.621,2,.5934,2.2,.5685,2.5,.5397,3,.5133,3.5,.504,4,.5006,5,.4988];
+const G7=[0,.1198,.5,.1194,.7,.1202,.8,.1242,.85,.1306,.9,.1464,.95,.2054,.975,.2993,1,.3803,1.05,.4043,1.1,.4014,1.2,.3884,1.3,.3732,1.4,.358,1.5,.344,1.6,.3315,1.8,.3117,2,.298,2.25,.2835,2.5,.2697,2.75,.2561,3,.2424,3.5,.2154,4,.1935,5,.1618];
+function cd(tab,m){const n=tab.length;if(m<=0)return tab[1];for(let i=0;i<n-2;i+=2){if(m<=tab[i+2]){const f=(m-tab[i])/(tab[i+2]-tab[i]);return tab[i+1]+f*(tab[i+3]-tab[i+1]);}}return tab[n-1];}
+const sel=document.getElementById('clock');
+for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=i+(i==3?' (from right)':i==9?' (from left)':'');sel.appendChild(o);}
+sel.value=9;
+['clock2','clock3'].forEach(id=>{const e=document.getElementById(id);for(let i=1;i<=12;i++){e.add(new Option(i+(i==3?' (from right)':i==9?' (from left)':''),i));}e.value=9;});
+const $=id=>document.getElementById(id);
+const FT=0.3048,YD=0.9144,IN=0.0254,GR=6.479891e-5;
+
+function run(o={}){
+  const num=id=>parseFloat($(id).value);
+  const mvF=+$('mv').value,mv=mvF*FT,sh=+$('sh').value*IN,zero=+$('zero').value*YD;
+  const bcIn=+$('bc').value,bcv=o.bc??bcIn,scale=bcIn>0?bcv/bcIn:1;
+  const bcHi=bcv*703.07,loIn=num('bclo'),bcLo=loIn>0?loIn*scale*703.07:0,thr=(num('bcthr')||0)*FT;
+  const tab=$('model').value==='G7'?G7:G1;
+  const tK=((+$('temp').value)-32)*5/9+273.15,altM=+$('alt').value*FT,tC=tK-273.15;
+  const psat=610.78*Math.exp(17.27*tC/(tC+237.3)),pv=Math.min(1,Math.max(0,(num('hum')||0)/100))*psat;
+  const pin=num('pres');const P=pin>0?pin*3386.39:101325*Math.pow(1-2.25577e-5*altM,5.25588);
+  const rho=(P-pv)/(287.05*tK)+pv/(461.495*tK),sos=20.05*Math.sqrt(tK);
+  const maxr=(o.maxr??+$('maxr').value)*YD,step=(o.step??Math.max(10,+$('step').value))*YD;
+  const mass=(+$('wt').value)*GR;
+  // wind layers
+  const layers=[];
+  [['wind','clock',null],['wind2','clock2','start2'],['wind3','clock3','start3']].forEach(([w,c,st])=>{const sp=num(w);if(sp>0)layers.push({c:-sp*0.44704*Math.sin(+$(c).value*Math.PI/6),s:(st?(num(st)||0):0)*YD});});
+  layers.sort((p,q)=>p.s-q.s);layers.forEach((l,i)=>{l.e=i+1<layers.length?layers[i+1].s:1e9;});
+  // stability and spin drift
+  const tw=num('tw')||0,d=num('dia')||0.264,len=num('len'),gr=+$('wt').value;
+  let Sg=null,haveLen=len>0;
+  if(tw>0){if(haveLen){const l=len/d,t=tw/d;Sg=30*gr/(t*t*d*d*d*l*(1+l*l))*Math.cbrt(mvF/2800);}else Sg=1.5;}
+  const lat=num('lat'),az=(num('dir')||0)*Math.PI/180,OM=7.2921159e-5;
+  function fly(th,all){
+    let x=0,y=0,vx=mv*Math.cos(th),vy=mv*Math.sin(th),t=0;const dt=0.0005,rows=[],dense=[];let next=0,nd=0;const lim=all?maxr:zero;
+    while(x<=lim+1&&t<12){
+      if(all&&x>=nd){dense.push([x,t]);nd+=YD;}
+      if(x>=next-1e-9){rows.push({x,y,v:Math.hypot(vx,vy),t});next+=all?step:1e9;}
+      const v=Math.hypot(vx,vy),b=(bcLo&&v<thr)?bcLo:bcHi,a=Math.PI/8*rho/b*cd(tab,v/sos)*v;
+      vx-=a*vx*dt;vy-=(a*vy+9.80665)*dt;x+=vx*dt;y+=vy*dt;t+=dt;
+      if(v<30)break;
+    }
+    return {rows,dense,y};
+  }
+  let lo=-0.05,hi=0.15;
+  for(let i=0;i<50;i++){const m=(lo+hi)/2;if(fly(m,false).y-sh<0)lo=m;else hi=m;}
+  const th=(lo+hi)/2,res=fly(th,true),dn=res.dense;
+  function tAt(x){if(x<=0)return 0;let i=0,j=dn.length-1;if(x>=dn[j][0])return dn[j][1];while(j-i>1){const m=(i+j)>>1;if(dn[m][0]<=x)i=m;else j=m;}const f=(x-dn[i][0])/(dn[j][0]-dn[i][0]||1);return dn[i][1]+f*(dn[j][1]-dn[i][1]);}
+  const L=x=>tAt(x)-x/mv;
+  const rows=[];
+  res.rows.forEach(p=>{
+    const dyd=p.x/YD;let windM=0;
+    layers.forEach(l=>{if(p.x>l.s)windM+=l.c*(L(Math.min(p.x,l.e))-L(l.s));});
+    const spin=(Sg!=null)?1.25*(Sg+1.2)*Math.pow(p.t,1.83)*($('tdir').value==='R'?1:-1):0;
+    let corH=0,corV=0;if(!isNaN(lat)){corH=OM*p.x*p.t*Math.sin(lat*Math.PI/180)/IN;corV=OM*p.x*p.t*Math.cos(lat*Math.PI/180)*Math.sin(az)/IN;}
+    const dropIn=(p.y-sh)/IN+corV,drift=windM/IN+spin+corH;
+    const moa=dyd>0?-dropIn/(dyd/100*1.04720):0,mil=dyd>0?-dropIn/(dyd*36/1000):0;
+    const wmoa=dyd>0?-drift/(dyd/100*1.04720):0,wmil=dyd>0?-drift/(dyd*36/1000):0;
+    rows.push({d:dyd,dropIn,moa,mil,drift,wmoa,wmil,v:p.v/FT,e:0.5*mass*p.v*p.v*0.737562,t:p.t,spin});
+  });
+  return {rows,rho,sos,Sg,haveLen,zero:+$('zero').value};
+}
+
+const COLS=[
+ {k:'dist',always:1,h:'Distance (yd)',l:'Distance',c:r=>`<td>${Math.round(r.d)}</td>`},
+ {k:'drop',h:'Drop (in)',l:'Drop (in)',c:r=>`<td>${f(r.dropIn)}</td>`},
+ {k:'emoa',h:'Elev (MOA)',l:'Elevation (MOA)',c:r=>`<td class="dial">${r.d?f(r.moa):'–'}</td>`},
+ {k:'emil',h:'Elev (mil)',l:'Elevation (mil)',c:r=>`<td class="dial">${r.d?f(r.mil):'–'}</td>`},
+ {k:'eclk',h:'Elev clicks',l:'Elevation clicks',c:r=>`<td class="dial">${r.d?clicks(r,'e'):'–'}</td>`},
+ {k:'drift',h:'Drift (in)',l:'Drift (in)',c:r=>`<td>${f(Math.abs(r.drift))} ${r.d?(r.drift>=0?'R':'L'):''}</td>`},
+ {k:'hmoa',h:'Hold (MOA)',l:'Wind hold (MOA)',c:r=>`<td class="dial">${r.d?f(Math.abs(r.wmoa))+' '+(r.wmoa>=0?'R':'L'):'–'}</td>`},
+ {k:'hmil',h:'Hold (mil)',l:'Wind hold (mil)',c:r=>`<td class="dial">${r.d?f(Math.abs(r.wmil))+' '+(r.wmil>=0?'R':'L'):'–'}</td>`},
+ {k:'hclk',h:'Hold clicks',l:'Wind hold clicks',c:r=>{const w=clicks(r,'w');return `<td class="dial">${r.d?Math.abs(w)+' '+(w>=0?'R':'L'):'–'}</td>`;}},
+ {k:'vel',h:'Velocity (fps)',l:'Velocity (fps)',c:r=>`<td>${Math.round(r.v)}</td>`},
+ {k:'en',h:'Energy (ft-lb)',l:'Energy (ft-lb)',c:r=>`<td>${Math.round(r.e)}</td>`},
+ {k:'time',h:'Time (s)',l:'Time of flight (s)',c:r=>`<td>${r.t.toFixed(2)}</td>`}];
+const CS='ballistics-cols',colSel={};
+COLS.forEach(c=>colSel[c.k]=!['emoa','hmoa'].includes(c.k));
+try{const sv=JSON.parse(localStorage.getItem(CS)||'null');if(sv)COLS.forEach(c=>{if(c.k in sv)colSel[c.k]=!!sv[c.k];});}catch(e){}
+function buildColPick(){
+  const box=$('colpick');box.innerHTML='';
+  COLS.forEach(c=>{
+    const lb=document.createElement('label');lb.style.cssText='flex-direction:row;align-items:center;gap:6px';
+    const cb=document.createElement('input');cb.type='checkbox';cb.style.width='auto';cb.checked=c.always?true:colSel[c.k];cb.disabled=!!c.always;
+    cb.addEventListener('change',()=>{colSel[c.k]=cb.checked;try{localStorage.setItem(CS,JSON.stringify(colSel));}catch(e){}render();});
+    lb.appendChild(cb);lb.appendChild(document.createTextNode(c.l));box.appendChild(lb);
+  });
+}
+function setCols(on){COLS.forEach(c=>{if(!c.always)colSel[c.k]=on(c.k);});try{localStorage.setItem(CS,JSON.stringify(colSel));}catch(e){}buildColPick();render();}
+function f(n,d=1){return (Math.abs(n)<0.05&&d==1?0:n).toFixed(d);}
+function clicks(r,which){const [u,v]=$('ck').value.split(':');const val=which==='e'?(u==='MOA'?r.moa:r.mil):(u==='MOA'?r.wmoa:r.wmil);return Math.round(val/ +v);}
+function render(){
+  let res,q;
+  try{res=run();q=run({maxr:+$('sd').value,step:+$('sd').value});}catch(e){$('out').innerHTML='<p class="err">Check your inputs and try again.</p>';return;}
+  const trans=res.rows.find(r=>r.v<res.sos/FT);const cu=$('ck').value.split(':')[0];
+  let h=`<div class="summary"><span>Air density <b>${(res.rho/1.225*100).toFixed(0)}%</b> of sea level</span><span>Speed of sound <b>${(res.sos/FT).toFixed(0)} fps</b></span>`;
+  h+=trans?`<span>Subsonic by <b>${Math.round(trans.d)} yd</b></span>`:'<span>Stays supersonic to max distance</span>';
+  if(res.Sg!=null){const ok=res.Sg>=1.5?'stable':res.Sg>=1.0?'marginal':'unstable';h+=`<span>Stability Sg <b>${res.Sg.toFixed(2)}</b> (${res.haveLen?ok:'assumed, enter bullet length'})</span>`;}
+  h+='</div>';
+  const r=q.rows[q.rows.length-1],ce=clicks(r,'e'),cw=clicks(r,'w');
+  h+=`<div class="card"><b>Solution for ${Math.round(r.d)} yd</b><div class="big" style="margin-top:8px"><div><div class="n">${f(Math.abs(r.mil))}</div><div class="l">mil ${r.mil>=0?'up':'down'}</div></div><div><div class="n">${f(Math.abs(r.moa))}</div><div class="l">MOA ${r.moa>=0?'up':'down'}</div></div><div><div class="n">${Math.abs(ce)}</div><div class="l">clicks ${ce>=0?'up':'down'}</div></div><div><div class="n">${f(Math.abs(r.wmil))}</div><div class="l">mil wind ${r.wmil>=0?'right':'left'}</div></div><div><div class="n">${Math.abs(cw)}</div><div class="l">clicks ${cw>=0?'right':'left'}</div></div><div><div class="n">${r.t.toFixed(2)}</div><div class="l">seconds</div></div></div></div>`;
+  const cs=COLS.filter(c=>c.always||colSel[c.k]);
+  h+=`<div class="wrap"><table><thead><tr>${cs.map(c=>'<th>'+c.h+'</th>').join('')}</tr></thead><tbody>`;
+  res.rows.forEach(r=>{
+    h+=`<tr${Math.abs(r.d-res.zero)<0.5?' class="zero"':''}>${cs.map(c=>c.c(r)).join('')}</tr>`;
+  });
+  h+='</tbody></table></div><p class="note">Elevation: positive means dial up. Hold columns include wind, spin drift and Coriolis (when latitude is set), shown as the direction to aim or dial. Drift shows where the bullet lands relative to point of aim. Aerodynamic jump is not modeled. Spin drift uses the Litz approximation, and stability uses the Miller formula.</p>';
+  $('out').innerHTML=h;
+}
+// Bullet data: ammolytics/projectiles (MIT License, Copyright (c) 2018 ammolytics), compiled from manufacturer published specs.
+// [caliber, brand, name, grains, G7 BC, G1 BC, low-speed BC, threshold fps, flag, diameter in]
+const B=[[".17 cal (.172)","Berger","25 gr FB Varmint",25.0,null,0.152,null,null,0,0.172],
+[".17 cal (.172)","Hornady","20 gr V-MAX",20.0,null,0.185,null,null,0,0.172],
+[".17 cal (.172)","Hornady","25 gr V-MAX",25.0,null,0.23,null,null,0,0.172],
+[".17 cal (.172)","Hornady","25 gr Varmint",25.0,null,0.187,null,null,0,0.172],
+[".20 cal (.204)","Barnes","26 gr Varmint Grenade",26.0,null,0.131,null,null,0,0.204],
+[".20 cal (.204)","Barnes","32 gr Varmin-a-tor",32.0,null,0.159,null,null,0,0.204],
+[".20 cal (.204)","Berger","35 gr FB Varmint",35.0,null,0.179,null,null,0,0.204],
+[".20 cal (.204)","Berger","40 gr BT Varmint",40.0,0.116,0.227,null,null,0,0.204],
+[".20 cal (.204)","Berger","55 gr Long Range BT Varmint",55.0,0.182,0.354,null,null,0,0.204],
+[".20 cal (.204)","Hornady","24 gr NTX",24.0,null,0.17,null,null,0,0.204],
+[".20 cal (.204)","Hornady","32 gr V-MAX",32.0,null,0.21,null,null,0,0.204],
+[".20 cal (.204)","Hornady","40 gr V-MAX",40.0,null,0.275,null,null,0,0.204],
+[".20 cal (.204)","Hornady","45 gr Varmint",45.0,null,0.245,null,null,0,0.204],
+[".20 cal (.204)","Speer","39 gr TNT",39.0,null,0.202,null,null,0,0.204],
+[".22 cal (.223 / .224)","Barnes","30 gr Varmint Grenade",30.0,null,0.101,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","36 gr Varmint Grenade",36.0,null,0.149,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","40 gr Varmin-a-tor",40.0,null,0.153,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","45 gr TSX Hunting",45.0,null,0.188,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","50 gr TSX Hunting",50.0,null,0.197,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","50 gr Tipped TSX Hunting",50.0,null,0.229,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","50 gr Varmin-a-tor",50.0,null,0.192,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","50 gr Varmint Grenade",50.0,null,0.183,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","52 gr Match Burners",52.0,null,0.224,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","53 gr TSX Hunting",53.0,null,0.204,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","55 gr MPG LF Frangible",55.0,null,0.225,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","55 gr TAC-RRLP",55.0,null,0.225,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","55 gr TAC-X",55.0,null,0.209,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","55 gr TSX Hunting",55.0,null,0.209,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","55 gr Tipped TSX Hunting",55.0,null,0.272,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","62 gr TAC-X",62.0,null,0.287,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","62 gr TSX Hunting",62.0,null,0.287,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","62 gr Tipped TSX Hunting",62.0,null,0.294,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","69 gr Match Burners",69.0,null,0.339,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","70 gr TAC-X",70.0,null,0.314,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","70 gr TSX Hunting",70.0,null,0.314,null,null,0,0.224],
+[".22 cal (.223 / .224)","Barnes","85 gr Match Burners",85.0,null,0.41,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","40 gr FB Varmint",40.0,null,0.151,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","52 gr FB Target",52.0,null,0.235,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","52 gr FB Varmint",52.0,null,0.201,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","55 gr FB Target",55.0,null,0.254,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","55 gr FB Varmint",55.0,null,0.209,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","60 gr FB Varmint",60.0,null,0.271,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","64 gr FB Varmint",64.0,null,0.287,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","70 gr VLD Target",70.0,0.191,0.374,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","73 gr BT Target",73.0,0.178,0.348,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","75 gr VLD Target",75.0,0.216,0.421,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","77 gr OTM Tactical",77.0,0.192,0.374,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","80 gr VLD Target",80.0,0.233,0.455,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","80.5 gr FULLBORE Target",80.5,0.226,0.441,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","82 gr Long Range BT Target",82.0,0.225,0.44,null,null,0,0.224],
+[".22 cal (.223 / .224)","Berger","90 gr VLD Target",90.0,0.274,0.534,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","35 gr NTX",35.0,null,0.177,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","35 gr V-MAX",35.0,null,0.109,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","40 gr V-MAX",40.0,null,0.2,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","45 gr Varmint",45.0,null,0.108,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","45 gr Varmint",45.0,null,0.202,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","50 gr GMX",50.0,null,0.215,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","50 gr V-MAX",50.0,null,0.242,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","50 gr Varmint",50.0,null,0.214,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","52 gr ELD Match",52.0,null,0.247,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","52 gr Match",52.0,null,0.229,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","53 gr Match",53.0,null,0.218,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","53 gr V-MAX",53.0,null,0.29,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","55 gr GMX",55.0,null,0.245,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","55 gr Traditional",55.0,null,0.254,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","55 gr Traditional",55.0,null,0.243,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","55 gr V-MAX",55.0,null,0.255,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","55 gr Varmint",55.0,null,0.235,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","60 gr V-MAX",60.0,null,0.265,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","60 gr Varmint",60.0,null,0.264,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","60 gr Varmint",60.0,null,0.271,null,null,0,0.224],
+[".22 cal (.223 / .224)","Hornady","62 gr Traditional",62.0,null,0.274,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","55 gr FMJ",55.0,null,0.235,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","55 gr Soft Point",55.0,null,0.185,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","69 gr Scenar",69.0,0.171,0.341,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","69 gr ScenarL",69.0,0.171,0.341,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","77 gr Scenar",77.0,0.193,0.386,null,null,0,0.224],
+[".22 cal (.223 / .224)","Lapua","77 gr ScenarL",77.0,0.193,0.386,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","30 gr TNT Green",30.0,null,0.091,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","33 gr Jacketed Hollow Point Rifle",33.0,null,0.079,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","40 gr Varmint Soft Point",40.0,null,0.144,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","43 gr TNT Green",43.0,null,0.15,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","45 gr Varmint Soft Point",45.0,null,0.167,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","46 gr Varmint Soft Point",46.0,null,0.094,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","50 gr TNT",50.0,null,0.228,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","50 gr Varmint Soft Point",50.0,null,0.231,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","52 gr Target Match Rifle",52.0,null,0.253,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","52 gr Varminter Hollow Point",52.0,null,0.168,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","55 gr Varmint Soft Point",55.0,null,0.212,null,null,0,0.224],
+[".22 cal (.223 / .224)","Speer","70 gr Varmint Soft Point",70.0,null,0.214,null,null,0,0.224],
+["6mm (.243)","Barnes","58 gr Varmin-a-tor",58.0,null,0.173,null,null,0,0.243],
+["6mm (.243)","Barnes","62 gr Varmint Grenade",62.0,null,0.199,null,null,0,0.243],
+["6mm (.243)","Barnes","68 gr Match Burners",68.0,null,0.267,null,null,0,0.243],
+["6mm (.243)","Barnes","72 gr Varmin-a-tor",72.0,null,0.208,null,null,0,0.243],
+["6mm (.243)","Barnes","80 gr Tipped TSX Hunting",80.0,null,0.331,null,null,0,0.243],
+["6mm (.243)","Barnes","85 gr TSX Hunting",85.0,null,0.333,null,null,0,0.243],
+["6mm (.243)","Barnes","105 gr Match Burners",105.0,null,0.511,null,null,0,0.243],
+["6mm (.243)","Berger","62 gr Euwin BR Target",62.0,null,0.226,null,null,0,0.243],
+["6mm (.243)","Berger","65 gr BT Target",65.0,0.144,0.281,null,null,0,0.243],
+["6mm (.243)","Berger","65 gr Web BR Target",65.0,null,0.246,null,null,0,0.243],
+["6mm (.243)","Berger","68 gr FB Target",68.0,null,0.255,null,null,0,0.243],
+["6mm (.243)","Berger","69 gr High BC FB Varmint",69.0,null,0.289,null,null,0,0.243],
+["6mm (.243)","Berger","80 gr FB Varmint",80.0,null,0.3,null,null,0,0.243],
+["6mm (.243)","Berger","87 gr VLD Hunting",87.0,0.219,0.427,null,null,0,0.243],
+["6mm (.243)","Berger","88 gr High BC FB Varmint",88.0,null,0.38,null,null,0,0.243],
+["6mm (.243)","Berger","90 gr BT Target",90.0,0.21,0.409,null,null,0,0.243],
+["6mm (.243)","Berger","95 gr Classic Hunter",95.0,0.223,0.434,null,null,0,0.243],
+["6mm (.243)","Berger","95 gr VLD Hunting",95.0,0.239,0.467,null,null,0,0.243],
+["6mm (.243)","Berger","95 gr VLD Target",95.0,0.24,0.467,null,null,0,0.243],
+["6mm (.243)","Berger","105 gr BT Target",105.0,0.253,0.494,null,null,0,0.243],
+["6mm (.243)","Berger","105 gr Hybrid Target",105.0,0.275,0.536,null,null,0,0.243],
+["6mm (.243)","Berger","105 gr VLD Hunting",105.0,0.278,0.545,null,null,0,0.243],
+["6mm (.243)","Berger","105 gr VLD Target",105.0,0.265,0.517,null,null,0,0.243],
+["6mm (.243)","Berger","108 gr BT Target",108.0,0.268,0.522,null,null,0,0.243],
+["6mm (.243)","Berger","115 gr VLD Hunting",115.0,0.291,0.568,null,null,0,0.243],
+["6mm (.243)","Berger","115 gr VLD Target",115.0,0.289,0.563,null,null,0,0.243],
+["6mm (.243)","Hornady","108 gr ELD Match",108.0,0.27,0.536,null,null,0,0.243],
+["6mm (.243)","Lapua","77 gr Open Tip",77.0,null,0.319,null,null,0,0.243],
+["6mm (.243)","Lapua","90 gr Naturalis",90.0,null,0.23,null,null,0,0.243],
+["6mm (.243)","Lapua","90 gr Scenar",90.0,0.216,0.434,null,null,0,0.243],
+["6mm (.243)","Lapua","90 gr ScenarL",90.0,0.216,0.434,null,null,0,0.243],
+["6mm (.243)","Lapua","105 gr Scenar",105.0,0.236,0.472,null,null,0,0.243],
+["6mm (.243)","Lapua","105 gr ScenarL",105.0,0.236,0.472,null,null,0,0.243],
+["6mm (.243)","Speer","70 gr TNT",70.0,null,0.282,null,null,0,0.243],
+["6mm (.243)","Speer","75 gr Varminter Hollow Point",75.0,null,0.234,null,null,0,0.243],
+["6mm (.243)","Speer","85 gr Boat-Tail Rifle",85.0,null,0.38,null,null,0,0.243],
+["6mm (.243)","Speer","90 gr Hot-Cor Rifle",90.0,null,0.365,null,null,0,0.243],
+["6mm (.243)","Speer","100 gr Boat-Tail Rifle",100.0,null,0.446,null,null,0,0.243],
+["6mm (.243)","Speer","100 gr Grand Slam Rifle",100.0,null,0.351,null,null,0,0.243],
+[".25 cal (.257)","Barnes","80 gr Tipped TSX Hunting",80.0,null,0.316,null,null,0,0.257],
+[".25 cal (.257)","Barnes","100 gr TSX Hunting",100.0,null,0.336,null,null,0,0.257],
+[".25 cal (.257)","Barnes","100 gr Tipped TSX Hunting",100.0,null,0.357,null,null,0,0.257],
+[".25 cal (.257)","Barnes","115 gr TSX Hunting",115.0,null,0.335,null,null,0,0.257],
+[".25 cal (.257)","Berger","115 gr VLD Hunting",115.0,0.247,0.483,null,null,0,0.257],
+[".25 cal (.257)","Hornady","60 gr Varmint",60.0,null,0.101,null,null,0,0.257],
+[".25 cal (.257)","Hornady","75 gr V-MAX",75.0,null,0.29,null,null,0,0.257],
+[".25 cal (.257)","Hornady","90 gr GMX",90.0,null,0.29,null,null,0,0.257],
+[".25 cal (.257)","Hornady","110 gr ELD-X",110.0,0.234,0.465,null,null,0,0.257],
+[".25 cal (.257)","Hornady","110 gr FTX",110.0,null,0.34,null,null,0,0.257],
+[".25 cal (.257)","Hornady","110 gr InterBond",110.0,null,0.39,null,null,0,0.257],
+[".25 cal (.257)","Hornady","117 gr InterLock",117.0,null,0.243,null,null,0,0.257],
+[".25 cal (.257)","Hornady","117 gr InterLock",117.0,null,0.391,null,null,0,0.257],
+[".25 cal (.257)","Hornady","117 gr SST",117.0,null,0.39,null,null,0,0.257],
+[".25 cal (.257)","Speer","87 gr Hot-Cor Rifle",87.0,null,0.3,null,null,0,0.257],
+[".25 cal (.257)","Speer","87 gr TNT",87.0,null,0.31,null,null,0,0.257],
+[".25 cal (.257)","Speer","100 gr Boat-Tail Rifle",100.0,null,0.393,null,null,0,0.257],
+[".25 cal (.257)","Speer","100 gr Hot-Cor Rifle",100.0,null,0.369,null,null,0,0.257],
+[".25 cal (.257)","Speer","100 gr Varminter Hollow Point",100.0,null,0.255,null,null,0,0.257],
+[".25 cal (.257)","Speer","120 gr Boat-Tail Rifle",120.0,null,0.48,null,null,0,0.257],
+[".25 cal (.257)","Speer","120 gr Grand Slam Rifle",120.0,null,0.328,null,null,0,0.257],
+["6.5mm (.264)","Barnes","100 gr TAC-TX",100.0,null,0.359,null,null,0,0.264],
+["6.5mm (.264)","Barnes","100 gr Tipped TSX Hunting",100.0,null,0.359,null,null,0,0.264],
+["6.5mm (.264)","Barnes","120 gr TAC-TX",120.0,null,0.412,null,null,0,0.264],
+["6.5mm (.264)","Barnes","120 gr TAC-X",120.0,null,0.381,null,null,0,0.264],
+["6.5mm (.264)","Barnes","120 gr TSX Hunting",120.0,null,0.381,null,null,0,0.264],
+["6.5mm (.264)","Barnes","120 gr Tipped TSX Hunting",120.0,null,0.412,null,null,0,0.264],
+["6.5mm (.264)","Barnes","127 gr LRX Long Range Hunting",127.0,null,0.468,null,null,0,0.264],
+["6.5mm (.264)","Barnes","130 gr TSX Hunting",130.0,null,0.365,null,null,0,0.264],
+["6.5mm (.264)","Barnes","140 gr Match Burners",140.0,null,0.586,null,null,0,0.264],
+["6.5mm (.264)","Berger","120 gr BT Target",120.0,0.24,0.468,null,null,0,0.264],
+["6.5mm (.264)","Berger","130 gr AR Hybrid OTM Tactical",130.0,0.287,0.56,null,null,0,0.264],
+["6.5mm (.264)","Berger","130 gr VLD Hunting",130.0,0.288,0.562,null,null,0,0.264],
+["6.5mm (.264)","Berger","130 gr VLD Target",130.0,0.288,0.562,null,null,0,0.264],
+["6.5mm (.264)","Berger","135 gr Classic Hunter",135.0,0.303,0.584,null,null,0,0.264],
+["6.5mm (.264)","Berger","140 gr Elite Hunter",140.0,0.31,0.606,null,null,0,0.264],
+["6.5mm (.264)","Berger","140 gr Hybrid Target",140.0,0.311,0.607,null,null,0,0.264],
+["6.5mm (.264)","Berger","140 gr Long Range BT Target",140.0,0.304,0.593,null,null,0,0.264],
+["6.5mm (.264)","Berger","140 gr VLD Hunting",140.0,0.307,0.6,null,null,0,0.264],
+["6.5mm (.264)","Berger","140 gr VLD Target",140.0,0.304,0.593,null,null,0,0.264],
+["6.5mm (.264)","Hornady","95 gr V-MAX",95.0,null,0.365,null,null,0,0.264],
+["6.5mm (.264)","Hornady","100 gr ELD Match",100.0,0.194,0.385,null,null,0,0.264],
+["6.5mm (.264)","Hornady","120 gr ELD Match",120.0,0.245,0.486,null,null,0,0.264],
+["6.5mm (.264)","Hornady","120 gr GMX",120.0,null,0.45,null,null,0,0.264],
+["6.5mm (.264)","Hornady","123 gr ELD Match",123.0,0.255,0.506,null,null,0,0.264],
+["6.5mm (.264)","Hornady","123 gr SST",123.0,null,0.51,null,null,0,0.264],
+["6.5mm (.264)","Hornady","129 gr InterBond",129.0,null,0.485,null,null,0,0.264],
+["6.5mm (.264)","Hornady","129 gr InterLock",129.0,null,0.445,null,null,0,0.264],
+["6.5mm (.264)","Hornady","129 gr SST",129.0,null,0.485,null,null,0,0.264],
+["6.5mm (.264)","Hornady","130 gr ELD Match",130.0,0.279,0.554,null,null,0,0.264],
+["6.5mm (.264)","Hornady","140 gr ELD Match",140.0,0.305,0.61,null,null,0,0.264],
+["6.5mm (.264)","Hornady","140 gr InterLock",140.0,null,0.465,null,null,0,0.264],
+["6.5mm (.264)","Hornady","140 gr Match",140.0,null,0.58,null,null,0,0.264],
+["6.5mm (.264)","Hornady","140 gr SST",140.0,null,0.52,null,null,0,0.264],
+["6.5mm (.264)","Hornady","143 gr ELD-X",143.0,0.315,0.625,null,null,0,0.264],
+["6.5mm (.264)","Hornady","147 gr ELD Match",147.0,0.351,0.697,null,null,0,0.264],
+["6.5mm (.264)","Hornady","160 gr InterLock",160.0,null,0.283,null,null,0,0.264],
+["6.5mm (.264)","Lapua","100 gr Cutting Edge FMJ",100.0,null,0.25,null,null,0,0.264],
+["6.5mm (.264)","Lapua","100 gr FMJ",100.0,null,0.25,null,null,0,0.264],
+["6.5mm (.264)","Lapua","100 gr Scenar",100.0,0.212,0.424,null,null,0,0.264],
+["6.5mm (.264)","Lapua","108 gr Scenar",108.0,0.231,0.465,null,null,0,0.264],
+["6.5mm (.264)","Lapua","120 gr ScenarL",120.0,0.246,0.497,null,null,0,0.264],
+["6.5mm (.264)","Lapua","123 gr Scenar",123.0,0.263,0.527,null,null,0,0.264],
+["6.5mm (.264)","Lapua","136 gr ScenarL",136.0,0.274,0.545,null,null,0,0.264],
+["6.5mm (.264)","Lapua","139 gr Scenar",139.0,0.29,0.578,null,null,0,0.264],
+["6.5mm (.264)","Lapua","140 gr Naturalis",140.0,null,0.201,null,null,0,0.264],
+["6.5mm (.264)","Lapua","144 gr FMJ",144.0,null,0.636,null,null,0,0.264],
+["6.5mm (.264)","Lapua","155 gr Mega",155.0,null,0.377,null,null,0,0.264],
+["6.5mm (.264)","Speer","90 gr TNT",90.0,null,0.281,null,null,0,0.264],
+["6.5mm (.264)","Speer","120 gr Hot-Cor Rifle",120.0,null,0.433,null,null,0,0.264],
+["6.5mm (.264)","Speer","140 gr Hot-Cor Rifle",140.0,null,0.405,null,null,0,0.264],
+[".270 / 6.8mm (.277)","Hornady","160 gr Traditional",160.0,null,0.275,null,null,0,0.267],
+[".270 / 6.8mm (.277)","Barnes","85 gr MPG LF Frangible",85.0,null,0.229,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","85 gr TAC-RRLP",85.0,null,0.229,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","85 gr TAC-X",85.0,null,0.246,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","85 gr TSX Hunting",85.0,null,0.246,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","95 gr TAC-TX",95.0,null,0.292,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","95 gr Tipped TSX Hunting",95.0,null,0.292,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","110 gr TAC-X",110.0,null,0.323,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","110 gr TSX Hunting",110.0,null,0.323,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","110 gr Tipped TSX Hunting",110.0,null,0.377,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","129 gr LRX Long Range Hunting",129.0,null,0.463,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","130 gr TSX Hunting",130.0,null,0.374,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","130 gr Tipped TSX Hunting",130.0,null,0.392,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","140 gr TSX Hunting",140.0,null,0.404,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Barnes","150 gr TSX Hunting",150.0,null,0.386,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","130 gr Classic Hunter",130.0,0.251,0.49,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","130 gr VLD Hunting",130.0,0.236,0.462,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","140 gr Classic Hunter",140.0,0.271,0.528,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","140 gr VLD Hunting",140.0,0.258,0.504,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","150 gr VLD Hunting",150.0,0.265,0.518,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Berger","170 gr EOL Elite Hunter",170.0,0.339,0.662,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","100 gr GMX",100.0,null,0.274,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","110 gr Match",110.0,null,0.36,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","110 gr V-MAX",110.0,null,0.37,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","120 gr SST",120.0,null,0.4,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","130 gr GMX",130.0,null,0.46,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","130 gr InterBond",130.0,null,0.46,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","130 gr InterLock",130.0,null,0.409,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","130 gr SST",130.0,null,0.46,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","140 gr InterLock",140.0,null,0.486,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","140 gr SST",140.0,null,0.495,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","145 gr ELD-X",145.0,0.27,0.536,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","150 gr InterBond",150.0,null,0.525,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","150 gr InterLock",150.0,null,0.462,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Hornady","150 gr SST",150.0,null,0.525,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","90 gr TNT",90.0,null,0.275,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","100 gr Varminter Hollow Point",100.0,null,0.225,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","130 gr Boat-Tail Rifle",130.0,null,0.412,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","130 gr Grand Slam Rifle",130.0,null,0.345,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","130 gr Hot-Cor Rifle",130.0,null,0.408,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","150 gr Boat-Tail Rifle",150.0,null,0.496,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","150 gr Grand Slam Rifle",150.0,null,0.385,null,null,0,0.277],
+[".270 / 6.8mm (.277)","Speer","150 gr Hot-Cor Rifle",150.0,null,0.455,null,null,0,0.277],
+["7mm (.284)","Barnes","110 gr Tipped TSX Hunting",110.0,null,0.319,null,null,0,0.284],
+["7mm (.284)","Barnes","120 gr TSX Hunting",120.0,null,0.349,null,null,0,0.284],
+["7mm (.284)","Barnes","120 gr Tipped TSX Hunting",120.0,null,0.373,null,null,0,0.284],
+["7mm (.284)","Barnes","139 gr LRX Long Range Hunting",139.0,null,0.47,null,null,0,0.284],
+["7mm (.284)","Barnes","140 gr TSX Hunting",140.0,null,0.394,null,null,0,0.284],
+["7mm (.284)","Barnes","140 gr Tipped TSX Hunting",140.0,null,0.412,null,null,0,0.284],
+["7mm (.284)","Barnes","145 gr LRX Long Range Hunting",145.0,null,0.486,null,null,0,0.284],
+["7mm (.284)","Barnes","150 gr TSX Hunting",150.0,null,0.408,null,null,0,0.284],
+["7mm (.284)","Barnes","150 gr Tipped TSX Hunting",150.0,null,0.45,null,null,0,0.284],
+["7mm (.284)","Barnes","160 gr TSX Hunting",160.0,null,0.392,null,null,0,0.284],
+["7mm (.284)","Barnes","168 gr LRX Long Range Hunting",168.0,null,0.55,null,null,0,0.284],
+["7mm (.284)","Barnes","171 gr Match Burners",171.0,null,0.645,null,null,0,0.284],
+["7mm (.284)","Barnes","175 gr TSX Hunting",175.0,null,0.417,null,null,0,0.284],
+["7mm (.284)","Berger","140 gr VLD Hunting",140.0,0.256,0.5,null,null,0,0.284],
+["7mm (.284)","Berger","150 gr Classic Hunter",150.0,0.258,0.505,null,null,0,0.284],
+["7mm (.284)","Berger","168 gr Classic Hunter",168.0,0.29,0.566,null,null,0,0.284],
+["7mm (.284)","Berger","168 gr VLD Hunting",168.0,0.316,0.618,null,null,0,0.284],
+["7mm (.284)","Berger","168 gr VLD Target",168.0,0.322,0.628,null,null,0,0.284],
+["7mm (.284)","Berger","175 gr Elite Hunter",175.0,0.336,0.656,null,null,0,0.284],
+["7mm (.284)","Berger","180 gr Hybrid Target",180.0,0.349,0.68,null,null,0,0.284],
+["7mm (.284)","Berger","180 gr VLD Hunting",180.0,0.345,0.673,null,null,0,0.284],
+["7mm (.284)","Berger","180 gr VLD Target",180.0,0.35,0.683,null,null,0,0.284],
+["7mm (.284)","Berger","195 gr EOL Elite Hunter",195.0,0.387,0.755,null,null,0,0.284],
+["7mm (.284)","Hornady","120 gr V-MAX",120.0,null,0.365,null,null,0,0.284],
+["7mm (.284)","Hornady","139 gr GMX",139.0,null,0.486,null,null,0,0.284],
+["7mm (.284)","Hornady","139 gr InterBond",139.0,null,0.486,null,null,0,0.284],
+["7mm (.284)","Hornady","139 gr InterLock",139.0,null,0.392,null,null,0,0.284],
+["7mm (.284)","Hornady","139 gr InterLock",139.0,null,0.453,null,null,0,0.284],
+["7mm (.284)","Hornady","139 gr SST",139.0,null,0.486,null,null,0,0.284],
+["7mm (.284)","Hornady","150 gr ELD-X",150.0,0.289,0.574,null,null,0,0.284],
+["7mm (.284)","Hornady","154 gr InterBond",154.0,null,0.525,null,null,0,0.284],
+["7mm (.284)","Hornady","154 gr InterLock",154.0,null,0.433,null,null,0,0.284],
+["7mm (.284)","Hornady","154 gr SST",154.0,null,0.525,null,null,0,0.284],
+["7mm (.284)","Hornady","162 gr ELD Match",162.0,0.338,0.67,null,null,0,0.284],
+["7mm (.284)","Hornady","162 gr ELD-X",162.0,0.315,0.63,null,null,0,0.284],
+["7mm (.284)","Hornady","162 gr InterLock",162.0,null,0.514,null,null,0,0.284],
+["7mm (.284)","Hornady","162 gr Match",162.0,null,0.61,null,null,0,0.284],
+["7mm (.284)","Hornady","162 gr SST",162.0,null,0.55,null,null,0,0.284],
+["7mm (.284)","Hornady","175 gr ELD-X",175.0,0.347,0.689,null,null,0,0.284],
+["7mm (.284)","Hornady","175 gr InterLock",175.0,null,0.462,null,null,0,0.284],
+["7mm (.284)","Hornady","180 gr ELD Match",180.0,0.401,0.796,null,null,0,0.284],
+["7mm (.284)","Lapua","150 gr ScenarL",150.0,0.26,0.526,null,null,0,0.284],
+["7mm (.284)","Lapua","156 gr Naturalis",156.0,null,0.28,null,null,0,0.284],
+["7mm (.284)","Lapua","180 gr ScenarL",180.0,0.332,0.661,null,null,0,0.284],
+["7mm (.284)","Speer","110 gr TNT",110.0,null,0.338,null,null,0,0.284],
+["7mm (.284)","Speer","130 gr Boat-Tail Rifle",130.0,null,0.424,null,null,0,0.284],
+["7mm (.284)","Speer","130 gr Hot-Cor Rifle",130.0,null,0.394,null,null,0,0.284],
+["7mm (.284)","Speer","145 gr Boat-Tail Rifle",145.0,null,0.472,null,null,0,0.284],
+["7mm (.284)","Speer","145 gr Grand Slam Rifle",145.0,null,0.327,null,null,0,0.284],
+["7mm (.284)","Speer","145 gr Hot-Cor Rifle",145.0,null,0.457,null,null,0,0.284],
+["7mm (.284)","Speer","160 gr Boat-Tail Rifle",160.0,null,0.519,null,null,0,0.284],
+["7mm (.284)","Speer","160 gr Grand Slam Rifle",160.0,null,0.389,null,null,0,0.284],
+["7mm (.284)","Speer","160 gr Hot-Cor Rifle",160.0,null,0.504,null,null,0,0.284],
+["7mm (.284)","Speer","175 gr Grand Slam Rifle",175.0,null,0.465,null,null,0,0.284],
+[".30 cal (.308)","Barnes","110 gr TAC-TX",110.0,null,0.289,null,null,0,0.308],
+[".30 cal (.308)","Barnes","110 gr TAC-TX",110.0,null,0.295,null,null,0,0.308],
+[".30 cal (.308)","Barnes","110 gr TAC-X",110.0,null,0.264,null,null,0,0.308],
+[".30 cal (.308)","Barnes","110 gr TSX Hunting",110.0,null,0.264,null,null,0,0.308],
+[".30 cal (.308)","Barnes","110 gr Tipped TSX Hunting",110.0,null,0.295,null,null,0,0.308],
+[".30 cal (.308)","Barnes","120 gr TAC-TX",120.0,null,0.358,null,null,0,0.308],
+[".30 cal (.308)","Barnes","130 gr TSX Hunting",130.0,null,0.34,null,null,0,0.308],
+[".30 cal (.308)","Barnes","130 gr Tipped TSX Hunting",130.0,null,0.35,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr MPG LF Frangible",150.0,null,0.357,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr TAC-RRLP",150.0,null,0.357,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr TAC-X",150.0,null,0.369,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr TSX Hunting",150.0,null,0.184,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr TSX Hunting",150.0,null,0.369,null,null,0,0.308],
+[".30 cal (.308)","Barnes","150 gr Tipped TSX Hunting",150.0,null,0.42,null,null,0,0.308],
+[".30 cal (.308)","Barnes","155 gr Match Burners",155.0,null,0.467,null,null,0,0.308],
+[".30 cal (.308)","Barnes","165 gr TSX Hunting",165.0,null,0.398,null,null,0,0.308],
+[".30 cal (.308)","Barnes","165 gr Tipped TSX Hunting",165.0,null,0.442,null,null,0,0.308],
+[".30 cal (.308)","Barnes","168 gr TAC-TX",168.0,null,0.47,null,null,0,0.308],
+[".30 cal (.308)","Barnes","168 gr TAC-X",168.0,null,0.404,null,null,0,0.308],
+[".30 cal (.308)","Barnes","168 gr TSX Hunting",168.0,null,0.404,null,null,0,0.308],
+[".30 cal (.308)","Barnes","168 gr Tipped TSX Hunting",168.0,null,0.47,null,null,0,0.308],
+[".30 cal (.308)","Barnes","175 gr LRX Long Range Hunting",175.0,null,0.508,null,null,0,0.308],
+[".30 cal (.308)","Barnes","175 gr Match Burners",175.0,null,0.521,null,null,0,0.308],
+[".30 cal (.308)","Barnes","180 gr TSX Hunting",180.0,null,0.453,null,null,0,0.308],
+[".30 cal (.308)","Barnes","180 gr Tipped TSX Hunting",180.0,null,0.484,null,null,0,0.308],
+[".30 cal (.308)","Barnes","200 gr LRX Long Range Hunting",200.0,null,0.546,null,null,0,0.308],
+[".30 cal (.308)","Barnes","200 gr TSX Hunting",200.0,null,0.423,null,null,0,0.308],
+[".30 cal (.308)","Berger","115 gr FB Target",115.0,null,0.289,null,null,0,0.308],
+[".30 cal (.308)","Berger","150 gr FB Target",150.0,null,0.393,null,null,0,0.308],
+[".30 cal (.308)","Berger","155 gr Hybrid Target",155.0,0.245,0.478,null,null,0,0.308],
+[".30 cal (.308)","Berger","155 gr VLD Hunting",155.0,0.238,0.464,null,null,0,0.308],
+[".30 cal (.308)","Berger","155 gr VLD Target",155.0,0.238,0.464,null,null,0,0.308],
+[".30 cal (.308)","Berger","155.5 gr FULLBORE Target",155.5,0.242,0.473,null,null,0,0.308],
+[".30 cal (.308)","Berger","168 gr Classic Hunter",168.0,0.251,0.489,null,null,0,0.308],
+[".30 cal (.308)","Berger","168 gr Hybrid Target",168.0,0.264,0.515,null,null,0,0.308],
+[".30 cal (.308)","Berger","168 gr VLD Hunting",168.0,0.255,0.498,null,null,0,0.308],
+[".30 cal (.308)","Berger","168 gr VLD Target",168.0,0.26,0.507,null,null,0,0.308],
+[".30 cal (.308)","Berger","175 gr Long Range BT Target",175.0,0.262,0.512,null,null,0,0.308],
+[".30 cal (.308)","Berger","175 gr OTM Tactical",175.0,0.263,0.512,null,null,0,0.308],
+[".30 cal (.308)","Berger","175 gr VLD Hunting",175.0,0.265,0.518,null,null,0,0.308],
+[".30 cal (.308)","Berger","175 gr VLD Target",175.0,0.262,0.512,null,null,0,0.308],
+[".30 cal (.308)","Berger","180 gr Elite Hunter",180.0,0.295,0.576,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr Classic Hunter",185.0,0.273,0.533,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr Hybrid Target",185.0,0.295,0.576,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr Juggernaut OTM Tactical",185.0,0.283,0.552,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr Juggernaut Target",185.0,0.284,0.555,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr VLD Hunting",185.0,0.286,0.558,null,null,0,0.308],
+[".30 cal (.308)","Berger","185 gr VLD Target",185.0,0.278,0.543,null,null,0,0.308],
+[".30 cal (.308)","Berger","190 gr VLD Hunting",190.0,0.29,0.566,null,null,0,0.308],
+[".30 cal (.308)","Berger","200 gr Hybrid Target",200.0,0.316,0.616,null,null,0,0.308],
+[".30 cal (.308)","Berger","200.2 gr Hybrid Target",200.2,0.328,0.64,null,null,0,0.308],
+[".30 cal (.308)","Berger","210 gr Long Range BT Target",210.0,0.32,0.625,null,null,0,0.308],
+[".30 cal (.308)","Berger","210 gr VLD Hunting",210.0,0.32,0.625,null,null,0,0.308],
+[".30 cal (.308)","Berger","210 gr VLD Target",210.0,0.318,0.621,null,null,0,0.308],
+[".30 cal (.308)","Berger","215 gr Hybrid Target",215.0,0.354,0.691,null,null,0,0.308],
+[".30 cal (.308)","Berger","230 gr Hybrid OTM Tactical",230.0,0.364,0.71,null,null,0,0.308],
+[".30 cal (.308)","Berger","230 gr Hybrid Target",230.0,0.368,0.717,null,null,0,0.308],
+[".30 cal (.308)","Hornady","100 gr Varmint",100.0,null,0.152,null,null,0,0.308],
+[".30 cal (.308)","Hornady","110 gr GMX",110.0,null,0.305,null,null,0,0.308],
+[".30 cal (.308)","Hornady","110 gr Traditional",110.0,null,0.15,null,null,0,0.308],
+[".30 cal (.308)","Hornady","110 gr Traditional",110.0,null,0.178,null,null,0,0.308],
+[".30 cal (.308)","Hornady","110 gr V-MAX",110.0,null,0.29,null,null,0,0.308],
+[".30 cal (.308)","Hornady","110 gr Varmint",110.0,null,0.256,null,null,0,0.308],
+[".30 cal (.308)","Hornady","125 gr GMX",125.0,null,0.295,null,null,0,0.308],
+[".30 cal (.308)","Hornady","125 gr SST",125.0,null,0.305,null,null,0,0.308],
+[".30 cal (.308)","Hornady","125 gr Traditional",125.0,null,0.32,null,null,0,0.308],
+[".30 cal (.308)","Hornady","130 gr Varmint",130.0,null,0.295,null,null,0,0.308],
+[".30 cal (.308)","Hornady","135 gr FTX",135.0,null,0.274,null,null,0,0.308],
+[".30 cal (.308)","Hornady","140 gr MonoFlex",140.0,null,0.277,null,null,0,0.308],
+[".30 cal (.308)","Hornady","140 gr MonoFlex",140.0,null,0.335,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr GMX",150.0,null,0.415,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr InterBond",150.0,null,0.415,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr InterLock",150.0,null,0.338,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr InterLock",150.0,null,0.349,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr InterLock",150.0,null,0.186,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr SST",150.0,null,0.415,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr SST",150.0,null,0.37,null,null,0,0.308],
+[".30 cal (.308)","Hornady","150 gr Traditional",150.0,null,0.398,null,null,0,0.308],
+[".30 cal (.308)","Hornady","155 gr A-MAX",155.0,null,0.435,null,null,0,0.308],
+[".30 cal (.308)","Hornady","155 gr ELD Match",155.0,0.232,0.461,null,null,0,0.308],
+[".30 cal (.308)","Hornady","155 gr Match",155.0,null,0.405,null,null,0,0.308],
+[".30 cal (.308)","Hornady","160 gr FTX",160.0,null,0.33,null,null,0,0.308],
+[".30 cal (.308)","Hornady","160 gr FTX",160.0,null,0.395,null,null,0,0.308],
+[".30 cal (.308)","Hornady","165 gr GMX",165.0,null,0.447,null,null,0,0.308],
+[".30 cal (.308)","Hornady","165 gr InterBond",165.0,null,0.447,null,null,0,0.308],
+[".30 cal (.308)","Hornady","165 gr InterLock",165.0,null,0.387,null,null,0,0.308],
+[".30 cal (.308)","Hornady","165 gr InterLock",165.0,null,0.435,null,null,0,0.308],
+[".30 cal (.308)","Hornady","165 gr SST",165.0,null,0.447,null,null,0,0.308],
+[".30 cal (.308)","Hornady","168 gr A-MAX",168.0,null,0.475,null,null,0,0.308],
+[".30 cal (.308)","Hornady","168 gr ELD Match",168.0,0.263,0.523,null,null,0,0.308],
+[".30 cal (.308)","Hornady","168 gr Match",168.0,null,0.45,null,null,0,0.308],
+[".30 cal (.308)","Hornady","170 gr InterLock",170.0,null,0.189,null,null,0,0.308],
+[".30 cal (.308)","Hornady","178 gr ELD Match",178.0,0.275,0.547,null,null,0,0.308],
+[".30 cal (.308)","Hornady","178 gr ELD-X",178.0,0.278,0.552,null,null,0,0.308],
+[".30 cal (.308)","Hornady","178 gr Match",178.0,null,0.53,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr GMX",180.0,null,0.485,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr InterBond",180.0,null,0.48,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr InterLock",180.0,null,0.425,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr InterLock",180.0,null,0.452,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr InterLock",180.0,null,0.241,null,null,0,0.308],
+[".30 cal (.308)","Hornady","180 gr SST",180.0,null,0.48,null,null,0,0.308],
+[".30 cal (.308)","Hornady","195 gr ELD Match",195.0,0.294,0.584,null,null,0,0.308],
+[".30 cal (.308)","Hornady","195 gr Match",195.0,null,0.55,null,null,0,0.308],
+[".30 cal (.308)","Hornady","200 gr ELD-X",200.0,0.301,0.597,null,null,0,0.308],
+[".30 cal (.308)","Hornady","208 gr ELD Match",208.0,0.348,0.69,null,null,0,0.308],
+[".30 cal (.308)","Hornady","208 gr Match",208.0,0.311,0.62,null,null,0,0.308],
+[".30 cal (.308)","Hornady","212 gr ELD-X",212.0,0.336,0.673,null,null,0,0.308],
+[".30 cal (.308)","Hornady","220 gr ELD-X",220.0,0.325,0.65,null,null,0,0.308],
+[".30 cal (.308)","Hornady","220 gr InterLock",220.0,null,0.3,null,null,0,0.308],
+[".30 cal (.308)","Hornady","225 gr ELD Match",225.0,0.391,0.777,null,null,0,0.308],
+[".30 cal (.308)","Hornady","225 gr Match",225.0,0.336,0.67,null,null,0,0.308],
+[".30 cal (.308)","Lapua","100 gr Cutting Edge OT",100.0,null,0.17,null,null,0,0.308],
+[".30 cal (.308)","Lapua","123 gr FMJ",123.0,null,0.27,null,null,0,0.308],
+[".30 cal (.308)","Lapua","150 gr Lock Base",150.0,0.217,0.434,null,null,0,0.308],
+[".30 cal (.308)","Lapua","150 gr Mega",150.0,null,0.33,null,null,0,0.308],
+[".30 cal (.308)","Lapua","155 gr Scenar",155.0,0.23,0.46,null,null,0,0.308],
+[".30 cal (.308)","Lapua","155 gr ScenarL",155.0,0.23,0.46,null,null,0,0.308],
+[".30 cal (.308)","Lapua","167 gr Scenar",167.0,0.223,0.446,null,null,0,0.308],
+[".30 cal (.308)","Lapua","170 gr Lock Base",170.0,0.249,0.498,null,null,0,0.308],
+[".30 cal (.308)","Lapua","170 gr Naturalis",170.0,0.177,0.354,null,null,0,0.308],
+[".30 cal (.308)","Lapua","175 gr ScenarL",175.0,0.247,0.49,null,null,0,0.308],
+[".30 cal (.308)","Lapua","185 gr D46",185.0,0.254,0.506,null,null,0,0.308],
+[".30 cal (.308)","Lapua","185 gr Mega",185.0,null,0.319,null,null,0,0.308],
+[".30 cal (.308)","Lapua","185 gr Scenar",185.0,0.242,0.482,null,null,0,0.308],
+[".30 cal (.308)","Lapua","200 gr Mega",200.0,null,0.344,null,null,0,0.308],
+[".30 cal (.308)","Lapua","200 gr Subsonic",200.0,0.235,0.518,null,null,0,0.308],
+[".30 cal (.308)","Lapua","220 gr ScenarL",220.0,0.324,0.647,null,null,0,0.308],
+[".30 cal (.308)","Speer","110 gr TMJ Rifle",110.0,null,0.179,null,null,0,0.308],
+[".30 cal (.308)","Speer","125 gr TNT",125.0,null,0.341,null,null,0,0.308],
+[".30 cal (.308)","Speer","130 gr Hot-Cor Rifle",130.0,null,0.248,null,null,0,0.308],
+[".30 cal (.308)","Speer","130 gr Varminter Hollow Point",130.0,null,0.263,null,null,0,0.308],
+[".30 cal (.308)","Speer","150 gr Boat-Tail Rifle",150.0,null,0.417,null,null,0,0.308],
+[".30 cal (.308)","Speer","150 gr Grand Slam Rifle",150.0,null,0.295,null,null,0,0.308],
+[".30 cal (.308)","Speer","150 gr Hot-Cor Rifle",150.0,null,0.255,null,null,0,0.308],
+[".30 cal (.308)","Speer","150 gr Hot-Cor Rifle",150.0,null,0.389,null,null,0,0.308],
+[".30 cal (.308)","Speer","165 gr Boat-Tail Rifle",165.0,null,0.52,null,null,0,0.308],
+[".30 cal (.308)","Speer","165 gr Grand Slam Rifle",165.0,null,0.393,null,null,0,0.308],
+[".30 cal (.308)","Speer","165 gr Hot-Cor Rifle",165.0,null,0.433,null,null,0,0.308],
+[".30 cal (.308)","Speer","168 gr Target Match Rifle",168.0,null,0.534,null,null,0,0.308],
+[".30 cal (.308)","Speer","170 gr Hot-Cor Rifle",170.0,null,0.298,null,null,0,0.308],
+[".30 cal (.308)","Speer","180 gr Boat-Tail Rifle",180.0,null,0.54,null,null,0,0.308],
+[".30 cal (.308)","Speer","180 gr Grand Slam Rifle",180.0,null,0.374,null,null,0,0.308],
+[".30 cal (.308)","Speer","180 gr Hot-Cor Rifle",180.0,null,0.441,null,null,0,0.308],
+[".30 cal (.308)","Speer","200 gr Hot-Cor Rifle",200.0,null,0.556,null,null,0,0.308],
+[".303 / 7.62x54R (.311)","Barnes","108 gr MPG LF Frangible",108.0,null,0.243,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Barnes","108 gr TAC-RRLP",108.0,null,0.243,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Barnes","123 gr TAC-X",123.0,null,0.275,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Barnes","123 gr TSX Hunting",123.0,null,0.275,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Hornady","123 gr InterLock",123.0,null,0.252,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Hornady","123 gr SST",123.0,null,0.295,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Lapua","200 gr D166",200.0,0.224,0.448,null,null,0,0.31],
+[".303 / 7.62x54R (.311)","Hornady","174 gr Traditional",174.0,null,0.47,null,null,0,0.3105],
+[".303 / 7.62x54R (.311)","Barnes","150 gr TSX Hunting",150.0,null,0.322,null,null,0,0.311],
+[".303 / 7.62x54R (.311)","Lapua","123 gr FMJ",123.0,null,0.257,null,null,0,0.311],
+[".303 / 7.62x54R (.311)","Speer","150 gr Hot-Cor Rifle",150.0,null,0.328,null,null,0,0.311],
+[".303 / 7.62x54R (.311)","Speer","180 gr Hot-Cor Rifle",180.0,null,0.328,null,null,0,0.311],
+[".303 / 7.62x54R (.311)","Hornady","150 gr InterLock",150.0,null,0.361,null,null,0,0.312],
+[".303 / 7.62x54R (.311)","Hornady","174 gr InterLock",174.0,null,0.262,null,null,0,0.312],
+["8mm (.321)","Hornady","165 gr FTX",165.0,null,0.31,null,null,0,0.321],
+["8mm (.321)","Hornady","170 gr InterLock",170.0,null,0.249,null,null,0,0.321],
+["8mm (.321)","Speer","170 gr Hot-Cor Rifle",170.0,null,0.297,null,null,0,0.321],
+["8mm (.323)","Barnes","160 gr Tipped TSX Hunting",160.0,null,0.4,null,null,0,0.323],
+["8mm (.323)","Barnes","180 gr TSX Hunting",180.0,null,0.381,null,null,0,0.323],
+["8mm (.323)","Barnes","200 gr TSX Hunting",200.0,null,0.421,null,null,0,0.323],
+["8mm (.323)","Hornady","150 gr InterLock",150.0,null,0.29,null,null,0,0.323],
+["8mm (.323)","Hornady","170 gr InterLock",170.0,null,0.217,null,null,0,0.323],
+["8mm (.323)","Hornady","170 gr SST",170.0,null,0.445,null,null,0,0.323],
+["8mm (.323)","Hornady","180 gr GMX",180.0,null,0.42,null,null,0,0.323],
+["8mm (.323)","Hornady","195 gr InterLock",195.0,null,0.41,null,null,0,0.323],
+["8mm (.323)","Hornady","196 gr Match",196.0,null,0.525,null,null,0,0.323],
+["8mm (.323)","Lapua","180 gr Naturalis",180.0,0.179,0.357,null,null,0,0.323],
+["8mm (.323)","Speer","150 gr Hot-Cor Rifle",150.0,null,0.369,null,null,0,0.323],
+["8mm (.323)","Speer","170 gr Hot-Cor Rifle",170.0,null,0.354,null,null,0,0.323],
+["8mm (.323)","Speer","200 gr Hot-Cor Rifle",200.0,null,0.411,null,null,0,0.323],
+[".338","Barnes","160 gr Tipped TSX Hunting",160.0,null,0.342,null,null,0,0.338],
+[".338","Barnes","185 gr TSX Hunting",185.0,null,0.352,null,null,0,0.338],
+[".338","Barnes","185 gr Tipped TSX Hunting",185.0,null,0.432,null,null,0,0.338],
+[".338","Barnes","210 gr TSX Hunting",210.0,null,0.404,null,null,0,0.338],
+[".338","Barnes","210 gr Tipped TSX Hunting",210.0,null,0.482,null,null,0,0.338],
+[".338","Barnes","225 gr TAC-TX",225.0,null,0.514,null,null,0,0.338],
+[".338","Barnes","225 gr TSX Hunting",225.0,null,0.386,null,null,0,0.338],
+[".338","Barnes","225 gr Tipped TSX Hunting",225.0,null,0.514,null,null,0,0.338],
+[".338","Barnes","250 gr LRX Long Range Hunting",250.0,null,0.602,null,null,0,0.338],
+[".338","Barnes","250 gr TSX Hunting",250.0,null,0.425,null,null,0,0.338],
+[".338","Barnes","265 gr LRX Long Range Hunting",265.0,null,0.575,null,null,0,0.338],
+[".338","Barnes","265 gr TAC-TX",265.0,null,0.575,null,null,0,0.338],
+[".338","Barnes","280 gr LRX Long Range Hunting",280.0,null,0.667,null,null,0,0.338],
+[".338","Barnes","285 gr TAC-X",285.0,null,0.585,null,null,0,0.338],
+[".338","Barnes","285 gr TSX Hunting",285.0,null,0.585,null,null,0,0.338],
+[".338","Berger","250 gr Elite Hunter",250.0,0.351,0.685,null,null,0,0.338],
+[".338","Berger","250 gr Hybrid OTM Tactical",250.0,0.349,0.682,null,null,0,0.338],
+[".338","Berger","300 gr Elite Hunter",300.0,0.417,0.814,null,null,0,0.338],
+[".338","Berger","300 gr Hybrid OTM Tactical",300.0,0.421,0.822,null,null,0,0.338],
+[".338","Hornady","185 gr GMX",185.0,null,0.42,null,null,0,0.338],
+[".338","Hornady","200 gr FTX",200.0,null,0.43,null,null,0,0.338],
+[".338","Hornady","200 gr SST",200.0,null,0.455,null,null,0,0.338],
+[".338","Hornady","225 gr InterBond",225.0,null,0.515,null,null,0,0.338],
+[".338","Hornady","225 gr InterLock",225.0,null,0.397,null,null,0,0.338],
+[".338","Hornady","225 gr SST",225.0,null,0.515,null,null,0,0.338],
+[".338","Hornady","230 gr ELD-X",230.0,0.31,0.616,null,null,0,0.338],
+[".338","Hornady","250 gr InterLock",250.0,null,0.291,null,null,0,0.338],
+[".338","Hornady","250 gr InterLock",250.0,null,0.431,null,null,0,0.338],
+[".338","Hornady","250 gr Match",250.0,null,0.67,null,null,0,0.338],
+[".338","Hornady","270 gr ELD-X",270.0,0.381,0.757,null,null,0,0.338],
+[".338","Hornady","285 gr ELD Match",285.0,0.417,0.829,null,null,0,0.338],
+[".338","Hornady","285 gr Match",285.0,0.352,0.756,null,null,0,0.338],
+[".338","Lapua","231 gr Naturalis",231.0,null,0.373,null,null,0,0.338],
+[".338","Lapua","250 gr Lock Base",250.0,0.31,0.625,null,null,0,0.338],
+[".338","Lapua","250 gr Scenar",250.0,0.322,0.648,null,null,0,0.338],
+[".338","Lapua","300 gr Scenar",300.0,0.368,0.736,null,null,0,0.338],
+[".338","Speer","200 gr Hot-Cor Rifle",200.0,null,0.448,null,null,0,0.338],
+[".338","Speer","225 gr Boat-Tail Rifle",225.0,null,0.484,null,null,0,0.338],
+[".338","Speer","250 gr Grand Slam Rifle",250.0,null,0.431,null,null,0,0.338],
+[".348","Barnes","220 gr Originals",220.0,null,0.301,null,null,0,0.348],
+[".348","Hornady","200 gr FTX",200.0,null,0.32,null,null,0,0.348],
+[".348","Hornady","200 gr InterLock",200.0,null,0.246,null,null,0,0.348],
+[".35 cal (.358)","Barnes","180 gr Tipped TSX Hunting",180.0,null,0.295,null,null,0,0.358],
+[".35 cal (.358)","Barnes","200 gr TSX Hunting",200.0,null,0.284,null,null,0,0.358],
+[".35 cal (.358)","Barnes","200 gr Tipped TSX Hunting",200.0,null,0.369,null,null,0,0.358],
+[".35 cal (.358)","Barnes","225 gr TSX Hunting",225.0,null,0.359,null,null,0,0.358],
+[".35 cal (.358)","Hornady","200 gr FTX",200.0,null,0.3,null,null,0,0.358],
+[".35 cal (.358)","Hornady","200 gr InterLock",200.0,null,0.282,null,null,0,0.358],
+[".35 cal (.358)","Hornady","200 gr InterLock",200.0,null,0.195,null,null,0,0.358],
+[".35 cal (.358)","Hornady","250 gr InterLock",250.0,null,0.375,null,null,0,0.358],
+[".35 cal (.358)","Speer","180 gr Hot-Cor Rifle",180.0,null,0.245,null,null,0,0.358],
+[".35 cal (.358)","Speer","220 gr Hot-Cor Rifle",220.0,null,0.286,null,null,0,0.358],
+[".35 cal (.358)","Speer","250 gr Hot-Cor Rifle",250.0,null,0.422,null,null,0,0.358],
+[".366","Barnes","250 gr Banded Solids",250.0,null,0.214,null,null,0,0.366],
+[".366","Barnes","250 gr TSX Hunting",250.0,null,0.361,null,null,0,0.366],
+[".366","Barnes","250 gr Tipped TSX Hunting",250.0,null,0.44,null,null,0,0.366],
+[".366","Barnes","286 gr Banded Solids",286.0,null,0.247,null,null,0,0.366],
+[".366","Barnes","286 gr TSX Hunting",286.0,null,0.411,null,null,0,0.366],
+[".366","Hornady","250 gr GMX",250.0,null,0.36,null,null,0,0.366],
+[".366","Hornady","286 gr InterLock",286.0,null,0.4,null,null,0,0.366],
+[".366","Hornady","300 gr DGS",300.0,null,0.28,null,null,0,0.366],
+[".366","Lapua","250 gr Naturalis",250.0,0.215,0.419,null,null,0,0.366],
+[".366","Lapua","285 gr Mega",285.0,null,0.339,null,null,0,0.366],
+[".366","Speer","270 gr Hot-Cor Rifle",270.0,null,0.361,null,null,0,0.366],
+[".375","Barnes","235 gr TSX Hunting",235.0,null,0.27,null,null,0,0.375],
+[".375","Barnes","250 gr Tipped TSX Hunting",250.0,null,0.424,null,null,0,0.375],
+[".375","Barnes","255 gr Originals",255.0,null,0.29,null,null,0,0.375],
+[".375","Barnes","270 gr LRX Long Range Hunting",270.0,null,0.449,null,null,0,0.375],
+[".375","Barnes","270 gr TSX Hunting",270.0,null,0.326,null,null,0,0.375],
+[".375","Barnes","300 gr TSX Hunting",300.0,null,0.357,null,null,0,0.375],
+[".375","Barnes","350 gr TSX Hunting",350.0,null,0.425,null,null,0,0.375],
+[".375","Hornady","250 gr GMX",250.0,null,0.43,null,null,0,0.375],
+[".375","Hornady","270 gr InterLock",270.0,null,0.38,null,null,0,0.375],
+[".375","Hornady","300 gr DGS",300.0,null,0.275,null,null,0,0.375],
+[".375","Hornady","300 gr DGX Bonded",300.0,null,0.275,null,null,0,0.375],
+[".375","Speer","235 gr Hot-Cor Rifle",235.0,null,0.317,null,null,0,0.375],
+[".375","Speer","270 gr Boat-Tail Rifle",270.0,null,0.429,null,null,0,0.375],
+[".375","Speer","285 gr Grand Slam Rifle",285.0,null,0.354,null,null,0,0.375],
+[".375","Barnes","255 gr Originals",255.0,null,0.29,null,null,0,0.377],
+[".41 (.410)","Hornady","400 gr DGS",400.0,null,0.325,null,null,0,0.41],
+[".41 (.410)","Hornady","400 gr DGX Bonded",400.0,null,0.325,null,null,0,0.41],
+[".41 (.410)","Barnes","300 gr TSX Hunting",300.0,null,0.281,null,null,0,0.411],
+[".41 (.410)","Hornady","300 gr InterLock",300.0,null,0.25,null,null,0,0.411],
+[".416","Barnes","300 gr TSX Hunting",300.0,null,0.298,null,null,0,0.416],
+[".416","Barnes","350 gr Banded Solids",350.0,null,0.217,null,null,0,0.416],
+[".416","Barnes","350 gr TSX Hunting",350.0,null,0.345,null,null,0,0.416],
+[".416","Barnes","350 gr Tipped TSX Hunting",350.0,null,0.444,null,null,0,0.416],
+[".416","Barnes","400 gr Banded Solids",400.0,null,0.261,null,null,0,0.416],
+[".416","Barnes","400 gr TSX Hunting",400.0,null,0.392,null,null,0,0.416],
+[".416","Hornady","400 gr DGS",400.0,null,0.319,null,null,0,0.416],
+[".416","Hornady","400 gr DGX Bonded",400.0,null,0.319,null,null,0,0.416],
+[".416","Speer","350 gr Hot-Cor Rifle",350.0,null,0.332,null,null,0,0.416],
+[".42 / .43 cal","Barnes","400 gr Banded Solids",400.0,null,0.261,null,null,0,0.422],
+[".42 / .43 cal","Barnes","400 gr TSX Hunting",400.0,null,0.378,null,null,0,0.422],
+[".42 / .43 cal","Hornady","400 gr DGS",400.0,null,0.315,null,null,0,0.423],
+[".42 / .43 cal","Hornady","400 gr DGX Bonded",400.0,null,0.315,null,null,0,0.423],
+[".42 / .43 cal","Hornady","265 gr FTX",265.0,null,0.225,null,null,0,0.43],
+[".42 / .43 cal","Hornady","265 gr InterLock",265.0,null,0.189,null,null,0,0.43],
+[".45 cal (.452)","Barnes","275 gr TSX Hunting",275.0,null,0.215,null,null,0,0.451],
+[".45 cal (.452)","Hornady","250 gr FTX",250.0,null,0.21,null,null,0,0.452],
+[".45 cal (.458)","Barnes","250 gr TSX Hunting",250.0,null,0.136,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr Originals",300.0,null,0.291,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr Originals",300.0,null,0.227,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr TAC-TX",300.0,null,0.236,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr TSX Hunting",300.0,null,0.234,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr TSX Hunting",300.0,null,0.163,null,null,0,0.458],
+[".45 cal (.458)","Barnes","300 gr Tipped TSX Hunting",300.0,null,0.236,null,null,0,0.458],
+[".45 cal (.458)","Barnes","350 gr TSX Hunting",350.0,null,0.278,null,null,0,0.458],
+[".45 cal (.458)","Barnes","400 gr Originals",400.0,null,0.389,null,null,0,0.458],
+[".45 cal (.458)","Barnes","400 gr Originals",400.0,null,0.302,null,null,0,0.458],
+[".45 cal (.458)","Barnes","450 gr TSX Hunting",450.0,null,0.369,null,null,0,0.458],
+[".45 cal (.458)","Barnes","500 gr TSX Hunting",500.0,null,0.412,null,null,0,0.458],
+[".45 cal (.458)","Hornady","250 gr MonoFlex",250.0,null,0.175,null,null,0,0.458],
+[".45 cal (.458)","Hornady","300 gr InterLock",300.0,null,0.197,null,null,0,0.458],
+[".45 cal (.458)","Hornady","325 gr FTX",325.0,null,0.23,null,null,0,0.458],
+[".45 cal (.458)","Hornady","350 gr InterLock",350.0,null,0.189,null,null,0,0.458],
+[".45 cal (.458)","Hornady","350 gr InterLock",350.0,null,0.195,null,null,0,0.458],
+[".45 cal (.458)","Hornady","480 gr DGS",480.0,null,0.285,null,null,0,0.458],
+[".45 cal (.458)","Hornady","480 gr DGX Bonded",480.0,null,0.285,null,null,0,0.458],
+[".45 cal (.458)","Hornady","500 gr DGS",500.0,null,0.295,null,null,0,0.458],
+[".45 cal (.458)","Hornady","500 gr DGX Bonded",500.0,null,0.295,null,null,0,0.458],
+[".45 cal (.458)","Speer","300 gr Jacketed Hollow Point Rifle",300.0,null,0.206,null,null,0,0.458],
+[".45 cal (.458)","Speer","350 gr Hot-Cor Rifle",350.0,null,0.232,null,null,0,0.458],
+[".475","Barnes","500 gr Banded Solids",500.0,null,0.243,null,null,0,0.474],
+[".475","Barnes","500 gr TSX Hunting",500.0,null,0.363,null,null,0,0.474],
+[".475","Hornady","500 gr DGS",500.0,null,0.29,null,null,0,0.474],
+[".475","Hornady","500 gr DGX Bonded",500.0,null,0.29,null,null,0,0.474],
+[".50 cal","Lapua","750 gr Bullex-N",750.0,null,0.96,null,null,0,0.5],
+[".50 cal","Lapua","800 gr Bullex-N",800.0,null,0.98,null,null,0,0.5],
+[".50 cal","Barnes","525 gr Banded Solids",525.0,null,0.267,null,null,0,0.504],
+[".50 cal","Barnes","525 gr TSX Hunting",525.0,null,0.32,null,null,0,0.505],
+[".50 cal","Hornady","525 gr DGS",525.0,null,0.27,null,null,0,0.505],
+[".50 cal","Hornady","525 gr DGX",525.0,null,0.27,null,null,0,0.505],
+[".50 cal","Barnes","570 gr Banded Solids",570.0,null,0.243,null,null,0,0.509],
+[".50 cal","Barnes","570 gr TSX Hunting",570.0,null,0.369,null,null,0,0.509],
+[".50 cal","Barnes","300 gr Originals",300.0,null,0.183,null,null,0,0.51],
+[".50 cal","Barnes","450 gr Originals",450.0,null,0.274,null,null,0,0.51],
+[".50 cal","Barnes","535 gr Banded Solids",535.0,null,0.238,null,null,0,0.51],
+[".50 cal","Barnes","647 gr TAC-X",647.0,null,0.572,null,null,0,0.51],
+[".50 cal","Barnes","647 gr TSX Hunting",647.0,null,0.572,null,null,0,0.51],
+[".50 cal","Barnes","750 gr Banded Solids",750.0,null,1.07,null,null,0,0.51],
+[".50 cal","Barnes","750 gr TAC-LR",750.0,null,1.07,null,null,0,0.51],
+[".50 cal","Barnes","750 gr TAC-LR",750.0,null,0.766,null,null,0,0.51],
+[".50 cal","Barnes","800 gr Banded Solids",800.0,null,1.095,null,null,0,0.51],
+[".50 cal","Hornady","570 gr DGS",570.0,null,0.295,null,null,0,0.51],
+[".50 cal","Hornady","570 gr DGX Bonded",570.0,null,0.295,null,null,0,0.51],
+[".50 cal","Hornady","750 gr A-MAX",750.0,null,1.05,null,null,0,0.51],
+["Large bore","Barnes","750 gr Banded Solids",750.0,null,0.257,null,null,0,0.583],
+["Large bore","Barnes","750 gr TSX Hunting",750.0,null,0.402,null,null,0,0.583],
+["Large bore","Barnes","900 gr Banded Solids",900.0,null,0.38,null,null,0,0.618]];
+const cal=$('cal'),bul=$('bul');
+[...new Set(B.map(b=>b[0]))].forEach(c=>cal.add(new Option(c,c)));
+function fillBul(){bul.innerHTML='';bul.add(new Option('Custom (enter your own)',''));B.forEach((b,i)=>{if(b[0]===cal.value)bul.add(new Option(b[1]+' '+b[2],i));});}
+function pick(){
+  if(bul.value===''){$('bulinfo').textContent='Custom bullet: enter weight, BC and drag model below.';return;}
+  const b=B[+bul.value],g7=b[4]!=null;
+  $('wt').value=b[3];$('model').value=g7?'G7':'G1';$('bc').value=g7?b[4]:b[5];$('shape').value='bt';$('dia').value=b[9]||$('dia').value;
+  $('bclo').value='';$('bcthr').value='';
+  $('bulinfo').textContent='Loaded '+b[1]+' '+b[2]+': '+(g7?'G7 '+b[4]+(b[5]?' (G1 '+b[5]+')':''):'G1 '+b[5])+'. Data is from manufacturer specs compiled in 2018 and may be out of date. Check the maker\'s current number and your own chronograph data.';
+  render();
+}
+$('shape').addEventListener('change',()=>{$('model').value=$('shape').value==='bt'?'G7':'G1';$('bulinfo').textContent='Drag model set to '+$('model').value+' from bullet shape. Enter a BC that matches that model.';});
+cal.addEventListener('change',fillBul);bul.addEventListener('change',pick);
+{const i=B.findIndex(b=>b[1]==='Hornady'&&b[3]===140&&b[9]===.264&&/ELD/.test(b[2]));if(i>=0){cal.value=B[i][0];fillBul();bul.value=String(i);}else fillBul();}
+async function getJSON(u){
+  const ac=new AbortController(),t=setTimeout(()=>ac.abort(),10000);
+  try{const r=await fetch(u,{signal:ac.signal});if(!r.ok)throw new Error('http '+r.status);return await r.json();}
+  finally{clearTimeout(t);}
+}
+const NOLINE='Could not reach the weather service. Check your signal and try again, or enter temperature, pressure and wind by hand. (The preview page on claude.ai also blocks outside requests, so use the installed or hosted copy.)';
+async function applyWeather(la,lo,gpsAlt){
+  const info=$('wxinfo');let elevM=gpsAlt;
+  $('lat').value=la.toFixed(3);$('lon').value=lo.toFixed(3);
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+    const d=await getJSON(u),c=d.current;if(!c||c.temperature_2m==null)throw new Error('no data');
+    if(d.elevation!=null&&(elevM==null||isNaN(elevM)))elevM=d.elevation;
+    $('temp').value=Math.round(c.temperature_2m);
+    $('pres').value=(c.surface_pressure*0.029530).toFixed(2);$('hum').value=Math.round(c.relative_humidity_2m);
+    $('wind').value=Math.round(c.wind_speed_10m);
+    const rel=(c.wind_direction_10m-(+$('dir').value||0)+360)%360;
+    $('clock').value=String(Math.round(rel/30)||12);
+    if(elevM!=null)$('alt').value=Math.round(elevM/FT);
+    info.textContent=`Weather loaded for ${la.toFixed(3)}, ${lo.toFixed(3)} (model data from ${String(c.time||'').replace('T',' ')} local time, not a reading at your firing line). Wind is relative to your shooting direction (${$('dir').value||0}°), so set that first and press again if it changes.`;
+    render();
+  }catch(e){
+    if(elevM!=null){$('alt').value=Math.round(elevM/FT);render();}
+    info.textContent=(elevM!=null?'Elevation set from GPS. ':'')+'Latitude and longitude are set. '+NOLINE;
+  }
+}
+$('wx').addEventListener('click',()=>{
+  const info=$('wxinfo');
+  if(!navigator.geolocation){info.textContent='This browser has no location access. Drop a pin on the map or enter conditions by hand.';return;}
+  info.textContent='Getting your location...';
+  navigator.geolocation.getCurrentPosition(pos=>applyWeather(pos.coords.latitude,pos.coords.longitude,pos.coords.altitude),
+    err=>{info.textContent='Location was blocked or unavailable. Drop a pin on the map instead, or enter conditions by hand.';},{enableHighAccuracy:true,timeout:15000});
+});
+$('coordbtn').addEventListener('click',()=>{const la=parseFloat($('lat').value),lo=parseFloat($('lon').value);if(isNaN(la)||isNaN(lo)){$('wxinfo').textContent='Enter latitude and longitude in the fields below first.';return;}applyWeather(la,lo,null);});
+
+
+const LS='ballistics-loads',FIELDS=['mv','bc','model','wt','sh','zero','bclo','bcthr','dia','tw','tdir','len','ck','shape'];
+function store(){try{return JSON.parse(localStorage.getItem(LS)||'{}');}catch(e){return null;}}
+function putStore(o){try{localStorage.setItem(LS,JSON.stringify(o));return true;}catch(e){return false;}}
+function refreshLoads(sel){const o=store()||{};const l=$('lsel');l.innerHTML='';l.add(new Option(Object.keys(o).length?'Choose a saved load':'No saved loads yet',''));Object.keys(o).sort().forEach(k=>l.add(new Option(k,k)));if(sel)l.value=sel;}
+$('lsave').addEventListener('click',()=>{
+  const n=$('lname').value.trim();if(!n){$('linfo').textContent='Enter a name for this load first.';return;}
+  const o=store();if(o===null){$('linfo').textContent='This browser is blocking saved data. Loads cannot be saved here.';return;}
+  const d={cal:cal.value,bul:bul.value};FIELDS.forEach(f=>d[f]=$(f).value);o[n]=d;
+  if(putStore(o)){refreshLoads(n);$('linfo').textContent='Saved "'+n+'".';}else $('linfo').textContent='This browser is blocking saved data. Loads cannot be saved here.';
+});
+$('lload').addEventListener('click',()=>{
+  const k=$('lsel').value,o=store()||{};if(!k||!o[k]){$('linfo').textContent='Choose a saved load first.';return;}
+  const d=o[k];cal.value=d.cal;fillBul();bul.value=d.bul;FIELDS.forEach(f=>$(f).value=d[f]);$('lname').value=k;
+  $('linfo').textContent='Loaded "'+k+'".';render();
+});
+$('ldel').addEventListener('click',()=>{
+  const k=$('lsel').value,o=store()||{};if(!k||!o[k]){$('linfo').textContent='Choose a saved load first.';return;}
+  delete o[k];putStore(o);refreshLoads();$('linfo').textContent='Deleted "'+k+'".';
+});
+refreshLoads();
+$('ttrue').addEventListener('click',()=>{
+  const D=+$('td').value,m=parseFloat($('tv').value),u=$('tu').value,t=$('tinfo');
+  if(!(D>0)||isNaN(m)){t.textContent='Enter the target distance and the elevation you dialed.';return;}
+  const at=bc=>{const r=run({bc,maxr:D,step:D}).rows;const p=r[r.length-1];return u==='MOA'?p.moa:p.mil;};
+  let lo=0.05,hi=1.5;
+  if(at(lo)<m||at(hi)>m){t.textContent='No realistic BC matches that dial at this distance. Recheck the distance, units, velocity, zero and sight height.';return;}
+  for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(at(mid)>m)lo=mid;else hi=mid;}
+  const old=+$('bc').value,nb=(lo+hi)/2;
+  $('bc').value=nb.toFixed(3);
+  t.textContent='BC changed from '+old+' to '+nb.toFixed(3)+' ('+((nb/old-1)*100).toFixed(1)+'%) so the model matches '+m+' '+(u==='MOA'?'MOA':'mil')+' at '+D+' yd. Save the load to keep it.';
+  render();
+});
+
+let hits=[];
+async function placeSearch(){
+  const q=$('place').value.trim(),info=$('wxinfo');
+  if(!q){info.textContent='Type a place name or postal code first.';return;}
+  info.textContent='Searching...';
+  try{
+    const d=await getJSON('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name='+encodeURIComponent(q));
+    hits=d.results||[];
+    const sel=$('pres2');sel.innerHTML='';
+    if(!hits.length){sel.add(new Option('No matches',''));info.textContent='No places found. Try a nearby town, a postal code, or enter conditions by hand.';return;}
+    sel.add(new Option(hits.length+' found, choose one',''));
+    hits.forEach((h,i)=>sel.add(new Option([h.name,h.admin1,h.country_code].filter(Boolean).join(', '),i)));
+    if(hits.length===1){sel.value='0';useHit();}else info.textContent='Choose a result from the list.';
+  }catch(e){info.textContent='Place search could not reach the service. Check your signal, or type latitude and longitude and conditions in by hand. (The preview page on claude.ai blocks outside requests, so use the installed or hosted copy.)';}
+}
+function useHit(){const v=$('pres2').value;if(v==='')return;const h=hits[+v];applyWeather(h.latitude,h.longitude,h.elevation??null);}
+$('psearch').addEventListener('click',placeSearch);
+$('place').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();placeSearch();}});
+$('pres2').addEventListener('change',useHit);
+(function(){
+  const root=document.documentElement,btn=$('themebtn'),TK='dialed-theme';
+  const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+  const isDark=()=>{const t=root.getAttribute('data-theme');if(t)return t==='dark';return !!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);};
+  const paint=()=>{const d=isDark();btn.setAttribute('aria-label',d?'Switch to light theme':'Switch to dark theme');btn.title=d?'Light theme':'Dark theme';btn.innerHTML=d?SUN:MOON;};
+  try{const sv=localStorage.getItem(TK);if(sv==='light'||sv==='dark')root.setAttribute('data-theme',sv);}catch(e){}
+  btn.addEventListener('click',()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem(TK,n);}catch(e){}paint();});
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',paint);}catch(e){}
+  paint();
+})();
+let tm;
+document.querySelectorAll('main input,main select').forEach(el=>{if(['place','lname','pres2','lsel','cal','bul','sd'].includes(el.id)||el.closest('#colpick'))return;el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{clearTimeout(tm);tm=setTimeout(render,250);});});
+$('sd').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(render,250);});
+$('colall').addEventListener('click',()=>setCols(()=>true));
+$('colmin').addEventListener('click',()=>setCols(k=>['emil','hmil'].includes(k)));
+buildColPick();
+$('go').addEventListener('click',render);
+pick();
+</script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const box=$('installbox'),ib=$('installbtn'),sb=$('sharebtn'),info=$('installinfo');
+  let deferred=null;
+  if((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone){box.hidden=true;}
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;ib.hidden=false;});
+  window.addEventListener('appinstalled',()=>{ib.hidden=true;info.textContent='Installed. Look for Dialed on your home screen.';});
+  ib.addEventListener('click',async()=>{
+    if(!deferred)return;deferred.prompt();
+    try{await deferred.userChoice;}catch(e){}
+    deferred=null;ib.hidden=true;
+  });
+  sb.addEventListener('click',async()=>{
+    const url=location.href.split('#')[0],data={title:'Dialed',text:'Dialed, a long range ballistic calculator',url};
+    if(navigator.share){try{await navigator.share(data);return;}catch(e){if(e&&e.name==='AbortError')return;}}
+    try{await navigator.clipboard.writeText(url);info.textContent='Link copied: '+url;}
+    catch(e){info.textContent='Send your friends this link: '+url;}
+  });
+})();
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+}
+</script>
+</body>
+</html>
