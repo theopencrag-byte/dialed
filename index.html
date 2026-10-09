@@ -100,6 +100,26 @@ td.dial{color:var(--hot);font-weight:600}
 .setuptext{margin:0;font-size:.85rem;color:var(--mute);min-width:0;flex:1 1 220px}
 .setup .actions{margin:0}
 .setup button{padding:5px 12px;font-size:.82rem}
+.windbox{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.winddial{width:min(100%,230px);flex:none;margin:0 auto}
+.winddial svg{width:100%;height:auto;display:block}
+.wd-ring{fill:none;stroke:var(--line);stroke-width:1.5}
+.wd-dot{fill:var(--panel);stroke:var(--line);stroke-width:1.5;cursor:pointer}
+.wd-dot.on{fill:var(--accent);stroke:var(--accent)}
+.wd-g:hover .wd-dot{stroke:var(--accent)}
+.wd-g:focus-visible{outline:none}
+.wd-g:focus-visible .wd-dot{stroke:var(--ink);stroke-width:3}
+.wd-num{fill:var(--mute);font:600 11px var(--body);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.wd-num.on{fill:var(--accent-ink)}
+.wd-line{stroke:var(--hot);stroke-width:3;stroke-linecap:round}
+.wd-head{fill:var(--hot)}
+.wd-off{opacity:.3}
+.wd-lab{fill:var(--mute);font:600 11px var(--body);text-anchor:middle}
+.wd-me{fill:var(--ink)}
+.windctl{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.windread{margin:0;font-size:.9rem}
+details.sub{margin-top:12px;background:var(--bg)}
+details.sub>summary{font-size:1rem}
 .err{color:var(--hot);font-weight:600}
 footer{max-width:1240px;margin:0 auto;padding:0 16px 24px;font-size:.78rem;color:var(--mute)}
 @media (max-width:480px){.tag{display:none}.big .n{font-size:2.4rem}}
@@ -117,17 +137,26 @@ footer{max-width:1240px;margin:0 auto;padding:0 16px 24px;font-size:.78rem;color
 <div class="setup a-setup"><p id="setuptext" class="setuptext"></p><p class="actions"><button type="button" id="goRifle">Edit rifle</button><button type="button" id="goWeather">Edit weather</button></p></div>
 <div class="a-out"><div id="out"></div></div>
 <div class="a-wind"><details class="sec" open><summary>Wind</summary><div class="sbody">
-<div class="grid">
-<label>Wind 1 speed (mph, from the shooter)<input id="wind" type="number" value="10"></label>
-<label>Wind 1 from (o'clock)<select id="clock"></select></label>
-<label>Wind 2 speed (mph)<input id="wind2" type="number" placeholder="0"></label>
-<label>Wind 2 from (o'clock)<select id="clock2"></select></label>
-<label>Wind 2 starts at (yd)<input id="start2" type="number" value="400"></label>
-<label>Wind 3 speed (mph)<input id="wind3" type="number" placeholder="0"></label>
-<label>Wind 3 from (o'clock)<select id="clock3"></select></label>
-<label>Wind 3 starts at (yd)<input id="start3" type="number" value="800"></label>
+<div class="windbox">
+<div class="winddial" id="winddial" role="group" aria-label="Wind direction dial"></div>
+<div class="windctl">
+<label>Wind speed (mph)<input id="wind" type="number" min="0" value="10"></label>
+<label>Wind coming from<select id="clock"></select></label>
+<p class="windread" id="windread"></p>
 </div>
-<p class="note">Wind 2 and 3 replace the earlier wind from their start distance outward. Clock positions are from the shooter, so 9 is wind from your left. Weather lookups fill Wind 1 from the compass direction and your shooting direction.</p>
+</div>
+<p class="note">Picture yourself behind the rifle looking at the target, which is at 12 o'clock. Tap the dial where the wind is coming from. Only the sideways part of the wind counts here, so wind from straight ahead or straight behind adds no correction.</p>
+<details class="sec sub"><summary>Wind changes downrange (optional)</summary><div class="sbody">
+<div class="grid">
+<label>Second wind starts at (yd)<input id="start2" type="number" value="400"></label>
+<label>Second wind speed (mph)<input id="wind2" type="number" min="0" placeholder="0"></label>
+<label>Second wind from<select id="clock2"></select></label>
+<label>Third wind starts at (yd)<input id="start3" type="number" value="800"></label>
+<label>Third wind speed (mph)<input id="wind3" type="number" min="0" placeholder="0"></label>
+<label>Third wind from<select id="clock3"></select></label>
+</div>
+<p class="note">Each extra wind replaces the one before it from its start distance outward. For example, 10 mph from your left out to 400 yd, then 5 mph from your left beyond that. Leave the speed blank to skip a wind.</p>
+</div></details>
 </div></details></div>
 <div class="a-tset"><details class="sec"><summary>Table range and columns</summary><div class="sbody">
 <div class="grid">
@@ -242,10 +271,8 @@ footer{max-width:1240px;margin:0 auto;padding:0 16px 24px;font-size:.78rem;color
 const G1=[0,.2629,.5,.2032,.7,.2165,.8,.2546,.85,.2901,.9,.3415,.95,.4084,1,.4805,1.05,.5427,1.1,.5883,1.2,.6393,1.3,.6589,1.4,.6625,1.5,.6573,1.6,.6474,1.8,.621,2,.5934,2.2,.5685,2.5,.5397,3,.5133,3.5,.504,4,.5006,5,.4988];
 const G7=[0,.1198,.5,.1194,.7,.1202,.8,.1242,.85,.1306,.9,.1464,.95,.2054,.975,.2993,1,.3803,1.05,.4043,1.1,.4014,1.2,.3884,1.3,.3732,1.4,.358,1.5,.344,1.6,.3315,1.8,.3117,2,.298,2.25,.2835,2.5,.2697,2.75,.2561,3,.2424,3.5,.2154,4,.1935,5,.1618];
 function cd(tab,m){const n=tab.length;if(m<=0)return tab[1];for(let i=0;i<n-2;i+=2){if(m<=tab[i+2]){const f=(m-tab[i])/(tab[i+2]-tab[i]);return tab[i+1]+f*(tab[i+3]-tab[i+1]);}}return tab[n-1];}
-const sel=document.getElementById('clock');
-for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=i+(i==3?' (from right)':i==9?' (from left)':'');sel.appendChild(o);}
-sel.value=9;
-['clock2','clock3'].forEach(id=>{const e=document.getElementById(id);for(let i=1;i<=12;i++){e.add(new Option(i+(i==3?' (from right)':i==9?' (from left)':''),i));}e.value=9;});
+const CLOCKNAME=['','ahead, slightly right','ahead and right','your right','behind and right','behind, slightly right','behind you','behind, slightly left','behind and left','your left','ahead and left','ahead, slightly left','straight ahead'];
+['clock','clock2','clock3'].forEach(id=>{const e=document.getElementById(id);for(let i=1;i<=12;i++){e.add(new Option(i+" o'clock, "+CLOCKNAME[i],i));}e.value=9;});
 const $=id=>document.getElementById(id);
 const FT=0.3048,YD=0.9144,IN=0.0254,GR=6.479891e-5;
 
@@ -300,16 +327,17 @@ function run(o={}){
   return {rows,rho,sos,Sg,haveLen,zero:+$('zero').value};
 }
 
+const A=(v,t)=>(parseFloat(t)===0?'':(v>=0?'→ ':'← '))+t;
 const COLS=[
  {k:'dist',always:1,h:'Distance (yd)',l:'Distance',c:r=>`<td>${Math.round(r.d)}</td>`},
  {k:'drop',h:'Drop (in)',l:'Drop (in)',c:r=>`<td>${f(r.dropIn)}</td>`},
  {k:'emoa',h:'Elev (MOA)',l:'Elevation (MOA)',c:r=>`<td class="dial">${r.d?f(r.moa):'–'}</td>`},
  {k:'emil',h:'Elev (mil)',l:'Elevation (mil)',c:r=>`<td class="dial">${r.d?f(r.mil):'–'}</td>`},
  {k:'eclk',h:'Elev clicks',l:'Elevation clicks',c:r=>`<td class="dial">${r.d?clicks(r,'e'):'–'}</td>`},
- {k:'drift',h:'Drift (in)',l:'Drift (in)',c:r=>`<td>${f(Math.abs(r.drift))} ${r.d?(r.drift>=0?'R':'L'):''}</td>`},
- {k:'hmoa',h:'Hold (MOA)',l:'Wind hold (MOA)',c:r=>`<td class="dial">${r.d?f(Math.abs(r.wmoa))+' '+(r.wmoa>=0?'R':'L'):'–'}</td>`},
- {k:'hmil',h:'Hold (mil)',l:'Wind hold (mil)',c:r=>`<td class="dial">${r.d?f(Math.abs(r.wmil))+' '+(r.wmil>=0?'R':'L'):'–'}</td>`},
- {k:'hclk',h:'Hold clicks',l:'Wind hold clicks',c:r=>{const w=clicks(r,'w');return `<td class="dial">${r.d?Math.abs(w)+' '+(w>=0?'R':'L'):'–'}</td>`;}},
+ {k:'drift',h:'Drift (in)',l:'Drift (in)',c:r=>`<td>${A(r.drift,f(Math.abs(r.drift)))}</td>`},
+ {k:'hmoa',h:'Wind hold (MOA)',l:'Wind hold (MOA)',c:r=>`<td class="dial">${r.d?A(r.wmoa,f(Math.abs(r.wmoa))):'–'}</td>`},
+ {k:'hmil',h:'Wind hold (mil)',l:'Wind hold (mil)',c:r=>`<td class="dial">${r.d?A(r.wmil,f(Math.abs(r.wmil))):'–'}</td>`},
+ {k:'hclk',h:'Wind clicks',l:'Wind clicks',c:r=>{const w=clicks(r,'w');return `<td class="dial">${r.d?A(w,String(Math.abs(w))):'–'}</td>`;}},
  {k:'vel',h:'Velocity (fps)',l:'Velocity (fps)',c:r=>`<td>${Math.round(r.v)}</td>`},
  {k:'en',h:'Energy (ft-lb)',l:'Energy (ft-lb)',c:r=>`<td>${Math.round(r.e)}</td>`},
  {k:'time',h:'Time (s)',l:'Time of flight (s)',c:r=>`<td>${r.t.toFixed(2)}</td>`}];
@@ -330,6 +358,7 @@ function f(n,d=1){return (Math.abs(n)<0.05&&d==1?0:n).toFixed(d);}
 function clicks(r,which){const [u,v]=$('ck').value.split(':');const val=which==='e'?(u==='MOA'?r.moa:r.mil):(u==='MOA'?r.wmoa:r.wmil);return Math.round(val/ +v);}
 function render(){
   try{updateSetup();}catch(e){}
+  try{updateWind();}catch(e){}
   let res,q;
   try{res=run();q=run({maxr:+$('sd').value,step:+$('sd').value});}catch(e){$('out').innerHTML='<p class="err">Check your inputs and try again.</p>';return;}
   const trans=res.rows.find(r=>r.v<res.sos/FT);const cu=$('ck').value.split(':')[0];
@@ -338,13 +367,13 @@ function render(){
   if(res.Sg!=null){const ok=res.Sg>=1.5?'stable':res.Sg>=1.0?'marginal':'unstable';h+=`<span>Stability Sg <b>${res.Sg.toFixed(2)}</b> (${res.haveLen?ok:'assumed, enter bullet length'})</span>`;}
   h+='</div>';
   const r=q.rows[q.rows.length-1],ce=clicks(r,'e'),cw=clicks(r,'w');
-  h+=`<div class="card"><b>Solution for ${Math.round(r.d)} yd</b><div class="big" style="margin-top:8px"><div><div class="n">${f(Math.abs(r.mil))}</div><div class="l">mil ${r.mil>=0?'up':'down'}</div></div><div><div class="n">${f(Math.abs(r.moa))}</div><div class="l">MOA ${r.moa>=0?'up':'down'}</div></div><div><div class="n">${Math.abs(ce)}</div><div class="l">clicks ${ce>=0?'up':'down'}</div></div><div><div class="n">${f(Math.abs(r.wmil))}</div><div class="l">mil wind ${r.wmil>=0?'right':'left'}</div></div><div><div class="n">${Math.abs(cw)}</div><div class="l">clicks ${cw>=0?'right':'left'}</div></div><div><div class="n">${r.t.toFixed(2)}</div><div class="l">seconds</div></div></div></div>`;
+  h+=`<div class="card"><b>Solution for ${Math.round(r.d)} yd</b><div class="big" style="margin-top:8px"><div><div class="n">${f(Math.abs(r.mil))}</div><div class="l">mil, dial ${r.mil>=0?'up':'down'}</div></div><div><div class="n">${f(Math.abs(r.moa))}</div><div class="l">MOA, dial ${r.moa>=0?'up':'down'}</div></div><div><div class="n">${Math.abs(ce)}</div><div class="l">clicks, dial ${ce>=0?'up':'down'}</div></div><div><div class="n">${A(r.wmil,f(Math.abs(r.wmil)))}</div><div class="l">mil wind${Math.abs(r.wmil)<0.05?'':', aim '+(r.wmil>=0?'right':'left')}</div></div><div><div class="n">${A(cw,String(Math.abs(cw)))}</div><div class="l">clicks wind${cw===0?'':', dial '+(cw>=0?'right':'left')}</div></div><div><div class="n">${r.t.toFixed(2)}</div><div class="l">seconds in flight</div></div></div></div>`;
   const cs=COLS.filter(c=>c.always||colSel[c.k]);
   h+=`<div class="wrap"><table><thead><tr>${cs.map(c=>'<th>'+c.h+'</th>').join('')}</tr></thead><tbody>`;
   res.rows.forEach(r=>{
     h+=`<tr${Math.abs(r.d-res.zero)<0.5?' class="zero"':''}>${cs.map(c=>c.c(r)).join('')}</tr>`;
   });
-  h+='</tbody></table></div><p class="note">Elevation: positive means dial up. Hold columns include wind, spin drift and Coriolis (when latitude is set), shown as the direction to aim or dial. Drift shows where the bullet lands relative to point of aim. Aerodynamic jump is not modeled. Spin drift uses the Litz approximation, and stability uses the Miller formula.</p>';
+  h+='</tbody></table></div><p class="note">Elevation: positive means dial up. The arrows in the Drift column show which way the bullet lands off your aim point with no correction. The arrows in the wind hold and click columns show which way to aim or dial to cancel that drift, so they point the opposite way. Drift and wind hold include wind, spin drift and Coriolis (when latitude is set). Aerodynamic jump is not modeled. Spin drift uses the Litz approximation, and stability uses the Miller formula.</p>';
   $('out').innerHTML=h;
 }
 // Bullet data: ammolytics/projectiles (MIT License, Copyright (c) 2018 ammolytics), compiled from manufacturer published specs.
@@ -1113,6 +1142,31 @@ function updateSetup(){
   let name='Custom bullet';
   try{const o=$('bul').selectedOptions;if(o&&o[0]&&$('bul').value!=='')name=o[0].text;}catch(e){}
   el.textContent=name+' · '+$('mv').value+' fps · '+$('model').value+' '+$('bc').value+' · '+$('temp').value+'°F · '+$('alt').value+' ft · wind '+$('wind').value+' mph';
+}
+function updateWind(){
+  const box=$('winddial');if(!box)return;
+  const c=+$('clock').value||12,sp=+$('wind').value||0,cx=110,cy=118,R=80,t=c*Math.PI/6;
+  let g='<circle class="wd-ring" cx="'+cx+'" cy="'+cy+'" r="'+R+'"/>';
+  for(let i=1;i<=12;i++){
+    const a=i*Math.PI/6,x=(cx+R*Math.sin(a)).toFixed(1),y=(cy-R*Math.cos(a)).toFixed(1),on=i===c;
+    g+='<g class="wd-g" data-c="'+i+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="Wind from '+i+" o'clock, "+CLOCKNAME[i]+'"><circle class="wd-dot'+(on?' on':'')+'" cx="'+x+'" cy="'+y+'" r="12"/><text class="wd-num'+(on?' on':'')+'" x="'+x+'" y="'+y+'">'+i+'</text></g>';
+  }
+  const px=cx+R*Math.sin(t),py=cy-R*Math.cos(t),ux=-Math.sin(t),uy=Math.cos(t);
+  const sx=px+ux*15,sy=py+uy*15,ex=cx-ux*20,ey=cy-uy*20,bx=ex-ux*10,by=ey-uy*10,nx=-uy,ny=ux;
+  g+='<g class="'+(sp>0?'':'wd-off')+'" aria-hidden="true"><line class="wd-line" x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+bx.toFixed(1)+'" y2="'+by.toFixed(1)+'"/><polygon class="wd-head" points="'+ex.toFixed(1)+','+ey.toFixed(1)+' '+(bx+nx*6).toFixed(1)+','+(by+ny*6).toFixed(1)+' '+(bx-nx*6).toFixed(1)+','+(by-ny*6).toFixed(1)+'"/></g>';
+  g+='<circle class="wd-me" cx="'+cx+'" cy="'+cy+'" r="5"/><text class="wd-lab" x="'+cx+'" y="12">Target</text><text class="wd-lab" x="'+cx+'" y="231">You</text>';
+  box.innerHTML='<svg viewBox="0 0 220 236" role="img" aria-label="Wind dial. Target at the top, you at the bottom. Wind from '+CLOCKNAME[c]+'.">'+g+'</svg>';
+  const s=Math.sin(t),side=Math.abs(s);let txt;
+  if(sp<=0)txt='No wind set. Enter a speed above 0.';
+  else if(side<.05)txt='Wind from '+CLOCKNAME[c]+' at '+sp+' mph. A head or tail wind adds no sideways push in this calculator, so there is no wind correction.';
+  else{const pct=Math.round(side*100);txt='Wind from '+CLOCKNAME[c]+' at '+sp+' mph pushes the bullet '+(s>0?'left':'right')+', so you aim '+(s>0?'right':'left')+'. '+(pct>=99?'All of the wind counts.':pct+'% of the wind counts sideways.');}
+  $('windread').textContent=txt;
+}
+{
+  const dial=$('winddial');
+  const pickWind=(e,key)=>{const g=e.target.closest&&e.target.closest('[data-c]');if(!g)return;if(key)e.preventDefault();const v=g.getAttribute('data-c');$('clock').value=v;render();if(key){const n=dial.querySelector('[data-c="'+v+'"]');if(n)n.focus();}};
+  dial.addEventListener('click',e=>pickWind(e,false));
+  dial.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')pickWind(e,true);});
 }
 let tm;
 document.querySelectorAll('main input,main select').forEach(el=>{if(['place','lname','pres2','lsel','cal','bul','sd'].includes(el.id)||el.closest('#colpick'))return;el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{clearTimeout(tm);tm=setTimeout(render,250);});});
