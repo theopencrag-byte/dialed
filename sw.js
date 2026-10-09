@@ -1,6 +1,6 @@
 // Dialed service worker: app files are cached on first visit so the app opens offline.
 // Bump VERSION whenever you change index.html so phones pick up the new copy.
-const VERSION='dialed-v6';
+const VERSION='dialed-v10';
 const SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-512.png','icons/apple-touch-icon.png','icons/favicon-32.png'];
 
 self.addEventListener('install',e=>{
